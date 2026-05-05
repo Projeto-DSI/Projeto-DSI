@@ -55,7 +55,13 @@ Future<void> main() async {
     ));
     return;
   }
-  
+  final firestore = FirebaseFirestore.instance;
+  try {
+   await firestore.collection('_test_').doc('ping').set({'status': 'ok'});
+   debugPrint('🔥 Firestore OK');
+  }  catch (e) {
+   debugPrint('❌ Firestore falhou: $e');
+  }
 
   runApp(const ProviderScope(child: VibeCoralQuestApp()));
 }
