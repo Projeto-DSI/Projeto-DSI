@@ -149,12 +149,12 @@ class MapExplorerPage extends ConsumerWidget {
                           ],
                         ),
                         const SizedBox(height: 20),
-                        Row(
+                        const Row(
                           children: [
                             Expanded(child: _Stat('Média/Noite', r'$50')),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12),
                             Expanded(child: _Stat('Caminhabilidade', '88')),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12),
                             Expanded(child: _Stat('Cafés', '90+')),
                           ],
                         ),
