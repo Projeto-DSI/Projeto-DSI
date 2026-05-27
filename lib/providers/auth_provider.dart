@@ -1,19 +1,18 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-import '../services/supabase_service.dart';
+import '../services/firebase_auth_service.dart';
 
-/// Stream do estado de autenticação do Supabase.
-/// Equivale ao `supabase.auth.onAuthStateChange` + `getSession` do React.
-final authStateProvider = StreamProvider<AuthState>((ref) {
-  return supabase.auth.onAuthStateChange;
+/// Stream do estado de autenticação do Firebase.
+/// Equivale ao `onAuthStateChange` do Supabase.
+final authStateProvider = StreamProvider<User?>((ref) {
+  return ref.watch(firebaseAuthServiceProvider).authStateChanges;
 });
 
 /// Usuário atual (null se não logado). Observa o authStateProvider.
 final currentUserProvider = Provider<User?>((ref) {
-  final state = ref.watch(authStateProvider);
-  return state.valueOrNull?.session?.user ?? supabase.auth.currentUser;
+  return ref.watch(authStateProvider).value;
 });
 
 /// Indica se já temos um usuário logado no momento — útil para route guards
@@ -23,86 +22,87 @@ final isAuthenticatedProvider = Provider<bool>((ref) {
 });
 
 /// Controller com os métodos de autenticação. A UI usa este provider em vez
-/// de chamar `supabase.auth.*` diretamente — deixa a lógica de backend
+/// de chamar `FirebaseAuth.instance` diretamente — deixa a lógica de backend
 /// centralizada, facilita testar e trocar o provedor no futuro.
 final authControllerProvider = Provider<AuthController>((ref) {
-  return AuthController();
+  return AuthController(ref.read(firebaseAuthServiceProvider));
+});
+
+// Serviço de autenticação Firebase (provido separadamente)
+final firebaseAuthServiceProvider = Provider<FirebaseAuthService>((ref) {
+  return FirebaseAuthService();
 });
 
 class AuthController {
+  final FirebaseAuthService _authService;
+
+  AuthController(this._authService);
+
   /// Cadastra um novo usuário.
-  /// [fullName] é salvo em `user_metadata.full_name`.
-  Future<AuthResponse> signUp({
+  /// O [fullName] não é usado diretamente no cadastro Firebase, mas pode ser
+  /// salvo posteriormente no Firestore (ex.: após o cadastro).
+  Future<UserCredential> signUp({
     required String email,
     required String password,
     required String fullName,
   }) async {
-    return supabase.auth.signUp(
-      email: email.trim(),
-      password: password,
-      data: {'full_name': fullName.trim()},
-      // Redireciona a confirmação de email pra abrir o app.
-      emailRedirectTo: 'io.supabase.bairromatch://login-callback',
-    );
+    // Firebase Auth não aceita metadados no signUp; podemos ignorar o nome
+    // ou salvar no Firestore depois com o userId.
+    final userCredential = await _authService.signUpWithEmail(email.trim(), password.trim());
+    // Opcional: salvar o nome no perfil do Firebase User
+    await userCredential.user?.updateDisplayName(fullName.trim());
+    return userCredential;
   }
 
   /// Login com email e senha.
-  Future<AuthResponse> signIn({
+  Future<UserCredential> signIn({
     required String email,
     required String password,
   }) async {
-    return supabase.auth.signInWithPassword(
-      email: email.trim(),
-      password: password,
-    );
+    return _authService.signInWithEmail(email.trim(), password.trim());
   }
 
   /// Envia email de recuperação de senha.
   Future<void> resetPassword(String email) async {
-    return supabase.auth.resetPasswordForEmail(
-      email.trim(),
-      redirectTo: 'io.supabase.bairromatch://reset-password',
-    );
+    return _authService.sendPasswordResetEmail(email.trim());
   }
 
   /// Atualiza a senha do usuário logado.
-  Future<UserResponse> updatePassword(String newPassword) {
-    return supabase.auth.updateUser(UserAttributes(password: newPassword));
+  Future<void> updatePassword(String newPassword) async {
+    final user = _authService.currentUser;
+    if (user == null) throw Exception('Usuário não está logado');
+    await user.updatePassword(newPassword);
   }
 
-  /// Login via OAuth do Google. Retorna quando o fluxo é iniciado
-  /// (o callback real chega pelo `onAuthStateChange`).
-  Future<bool> signInWithGoogle() {
-    return supabase.auth.signInWithOAuth(
-      OAuthProvider.google,
-      redirectTo: 'io.supabase.bairromatch://login-callback',
-    );
+  /// Login via OAuth do Google.
+  Future<UserCredential> signInWithGoogle() async {
+    return _authService.signInWithGoogle();
   }
 
-  Future<void> signOut() => supabase.auth.signOut();
+  Future<void> signOut() => _authService.signOut();
 
-  /// Traduz mensagens do Supabase para português, para exibir ao usuário.
+  /// Traduz mensagens do FirebaseAuth para português, para exibir ao usuário.
   /// Sempre registra o erro original via debugPrint para facilitar o debug.
   static String friendlyError(Object error) {
     debugPrint('Auth error: $error');
-    if (error is AuthException) {
-      final msg = error.message.toLowerCase();
-      if (msg.contains('invalid login credentials')) {
-        return 'Email ou senha incorretos.';
+    if (error is FirebaseAuthException) {
+      final code = error.code;
+      switch (code) {
+        case 'user-not-found':
+        case 'wrong-password':
+        case 'invalid-credential':
+          return 'Email ou senha incorretos.';
+        case 'email-already-in-use':
+          return 'Já existe uma conta com este email.';
+        case 'weak-password':
+          return 'A senha deve ter pelo menos 6 caracteres.';
+        case 'too-many-requests':
+          return 'Muitas tentativas. Aguarde alguns minutos e tente novamente.';
+        case 'operation-not-allowed':
+          return 'Este método de login não está habilitado.';
+        default:
+          return error.message ?? 'Ocorreu um erro na autenticação.';
       }
-      if (msg.contains('email not confirmed')) {
-        return 'Confirme seu email antes de entrar.';
-      }
-      if (msg.contains('user already registered')) {
-        return 'Já existe uma conta com este email.';
-      }
-      if (msg.contains('password should be')) {
-        return 'A senha não atende aos requisitos mínimos.';
-      }
-      if (msg.contains('rate limit')) {
-        return 'Muitas tentativas. Aguarde alguns minutos e tente novamente.';
-      }
-      return error.message;
     }
     return 'Não foi possível concluir a operação. Tente novamente.';
   }

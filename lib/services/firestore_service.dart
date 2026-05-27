@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class FirestoreService {
   final _db = FirebaseFirestore.instance;
 
-  String get _uid => Supabase.instance.client.auth.currentUser!.id;
+  String get _uid => FirebaseAuth.instance.currentUser!.uid;
 
   // Salva ou atualiza perfil do usuário
   Future<void> saveProfile(Map<String, dynamic> data) =>
@@ -44,7 +44,7 @@ class FirestoreService {
         'created_at': FieldValue.serverTimestamp(),
       });
 
-  // Escuta reviews de uma cidade
+
   Stream<QuerySnapshot> watchCityReviews(String citySlug) =>
       _db
           .collection('city_reviews')
