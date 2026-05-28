@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../providers/auth_provider.dart';
-import '../providers/city_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/bottom_nav.dart';
 import 'map_explorer_page.dart';
 import 'match_quiz_page.dart';
 import 'profile_page.dart';
 import 'quests_page.dart';
+import '../providers/city_provider.dart';
+import '../providers/firestore_provider.dart';
 
 /// Container principal com bottom nav — equivale ao Index.tsx do React.
 /// A decisão de mostrar login ou home agora é do router (via redirect),
@@ -39,8 +39,8 @@ class HomePage extends ConsumerWidget {
     final pages = <Widget>[
       MatchQuizPage(
         onCityFound: (city) {
-          ref.read(cityProvider.notifier).state = city;
-          ref.read(activeTabProvider.notifier).state = 1;
+          ref.read(cityProvider.notifier).setCity(city);
+          ref.read(activeTabProvider.notifier).setTab(1);
         },
       ),
       const MapExplorerPage(),
@@ -52,7 +52,7 @@ class HomePage extends ConsumerWidget {
       body: IndexedStack(index: activeTab, children: pages),
       bottomNavigationBar: AppBottomNav(
         activeTab: activeTab,
-        onTabChange: (i) => ref.read(activeTabProvider.notifier).state = i,
+        onTabChange: (i) => ref.read(activeTabProvider.notifier).setTab(i),
       ),
     );
   }

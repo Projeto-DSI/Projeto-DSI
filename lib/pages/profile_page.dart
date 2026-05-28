@@ -1,89 +1,79 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-
+ 
 import '../models/favorite_city.dart';
 import '../providers/auth_provider.dart';
-import '../services/supabase_service.dart';
+import '../providers/firestore_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_text_field.dart';
-
+ 
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
-
+ 
   @override
   ConsumerState<ProfilePage> createState() => _ProfilePageState();
 }
-
+ 
 class _ProfilePageState extends ConsumerState<ProfilePage> {
   final _nameController = TextEditingController();
   bool _editing = false;
   bool _saving = false;
   bool _loaded = false;
-
+ 
   List<FavoriteCity> _favCities = [];
   int _questCount = 0;
   int _totalXp = 0;
-
+ 
   @override
   void dispose() {
     _nameController.dispose();
     super.dispose();
   }
-
+ 
   Future<void> _load(String userId) async {
     if (_loaded) return;
     _loaded = true;
-
+ 
     try {
-      final profile = await supabase
-          .from('profiles')
-          .select('display_name')
-          .eq('user_id', userId)
-          .maybeSingle();
+      final service = ref.read(firestoreServiceProvider);
+ 
+      // Perfil
+      final profile = await service.getProfile(userId);
       if (profile != null && profile['display_name'] != null) {
         _nameController.text = profile['display_name'] as String;
       }
-
-      final favs = await supabase
-          .from('favorite_cities')
-          .select('city_name, created_at')
-          .eq('user_id', userId)
-          .order('created_at', ascending: false);
-      _favCities = (favs as List)
-          .map((e) => FavoriteCity.fromMap(e as Map<String, dynamic>))
-          .toList();
-
-      final quests = await supabase
-          .from('quest_progress')
-          .select('xp_earned')
-          .eq('user_id', userId)
-          .eq('completed', true);
-      _questCount = (quests as List).length;
+ 
+      // Quests completadas
+      final quests = await service.getCompletedQuests(userId);
+      _questCount = quests.length;
       _totalXp = quests.fold<int>(
-          0, (sum, q) => sum + ((q as Map)['xp_earned'] as int? ?? 0));
-
+        0,
+        (sum, q) => sum + ((q['xp_earned'] as int?) ?? 0),
+      );
+ 
       if (mounted) setState(() {});
-    } catch (_) {
-      // Ignora silenciosamente — primeira execução sem dados ainda.
+    } catch (e) {
+      debugPrint('ProfilePage _load error: $e');
     }
   }
-
+ 
   Future<void> _save(String userId) async {
     setState(() => _saving = true);
     try {
-      await supabase
-          .from('profiles')
-          .update({'display_name': _nameController.text}).eq('user_id', userId);
+      await ref
+          .read(firestoreServiceProvider)
+          .updateProfile(userId, {'display_name': _nameController.text});
       _toast('Perfil atualizado!');
       setState(() => _editing = false);
-    } catch (_) {
+    } catch (e) {
+      debugPrint('ProfilePage _save error: $e');
       _toast('Erro ao salvar perfil', error: true);
     } finally {
       if (mounted) setState(() => _saving = false);
     }
   }
-
+ 
   void _toast(String msg, {bool error = false}) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -92,14 +82,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       behavior: SnackBarBehavior.floating,
     ));
   }
-
+ 
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider);
     if (user != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _load(user.id));
+      WidgetsBinding.instance.addPostFrameCallback((_) => _load(user.uid));
     }
-
+ 
     return SafeArea(
       child: Center(
         child: ConstrainedBox(
@@ -144,7 +134,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                 IconButton.filled(
                                   onPressed: _saving
                                       ? null
-                                      : () => _save(user!.id),
+                                      : () => _save(user!.uid),
                                   style: IconButton.styleFrom(
                                     backgroundColor: AppColors.coral,
                                     foregroundColor: Colors.white,
@@ -168,8 +158,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                   ),
                                 ),
                                 InkWell(
-                                  onTap: () =>
-                                      setState(() => _editing = true),
+                                  onTap: () => setState(() => _editing = true),
                                   child: const Icon(LucideIcons.pencil,
                                       size: 14,
                                       color: AppColors.mutedForeground),
@@ -283,7 +272,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 ),
                 const SizedBox(height: 32),
                 OutlinedButton.icon(
-                  onPressed: () => supabase.auth.signOut(),
+                  onPressed: () => ref.read(authControllerProvider).signOut(),
                   icon: const Icon(LucideIcons.logOut, size: 16),
                   label: const Text('Sair da Conta'),
                   style: OutlinedButton.styleFrom(
@@ -300,18 +289,18 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 }
-
+ 
 class _StatCard extends StatelessWidget {
   final IconData icon;
   final String value;
   final String label;
-
+ 
   const _StatCard({
     required this.icon,
     required this.value,
     required this.label,
   });
-
+ 
   @override
   Widget build(BuildContext context) {
     return Container(
