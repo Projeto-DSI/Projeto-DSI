@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/user_quest.dart';
 import '../providers/auth_provider.dart';
@@ -11,15 +12,23 @@ final userQuestsProvider =
 
 class UserQuestNotifier
     extends StateNotifier<AsyncValue<List<UserQuest>>> {
-  UserQuestNotifier(this._ref) : super(const AsyncValue.loading()) {
+  UserQuestNotifier(this._ref) : super(const AsyncValue.data(<UserQuest>[])) {
     _init();
   }
 
   final Ref _ref;
 
   void _init() {
-    final user = _ref.read(currentUserProvider);
-    if (user != null) load(user.id);
+    _ref.listen<User?>(currentUserProvider, (previous, next) {
+      if (next == null) {
+        state = const AsyncValue.data(<UserQuest>[]);
+        return;
+      }
+
+      if (previous?.id != next.id) {
+        load(next.id);
+      }
+    }, fireImmediately: true);
   }
 
   Future<void> load(String userId) async {
