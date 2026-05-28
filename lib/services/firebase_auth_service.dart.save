@@ -2,6 +2,26 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart'; // kIsWeb
 import 'package:google_sign_in/google_sign_in.dart'; // para mobile
 
+Future<UserCredential> signInWithGoogle() async {
+  final googleProvider = GoogleAuthProvider();
+  
+  if (kIsWeb) {
+    // Web: usa popup
+    return _auth.signInWithPopup(googleProvider);
+  } else {
+    // Mobile: usa o plugin google_sign_in
+    final googleUser = await GoogleSignIn().signIn();
+    if (googleUser == null) throw Exception('Login cancelado');
+    
+    final googleAuth = await googleUser.authentication;
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+    return _auth.signInWithCredential(credential);
+  }
+}e:firebase_auth/firebase_auth.dart';
+
 class FirebaseAuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -18,20 +38,9 @@ class FirebaseAuthService {
       _auth.sendPasswordResetEmail(email: email);
 
   Future<UserCredential> signInWithGoogle() async {
-  final googleProvider = GoogleAuthProvider();
-
-  if (kIsWeb) {
-    return _auth.signInWithPopup(googleProvider);
-  } else {
-    await GoogleSignIn.instance.initialize();
-    final googleUser = await GoogleSignIn.instance.authenticate();
-
-    final auth = googleUser.authentication;
-    final credential = GoogleAuthProvider.credential(
-      idToken: auth.idToken,
-    );
-    return _auth.signInWithCredential(credential);
+    final googleProvider = GoogleAuthProvider();
+    return _auth.signInWithProvider(googleProvider);
   }
-}
+
   Future<void> signOut() => _auth.signOut();
 }
