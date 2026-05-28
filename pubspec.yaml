@@ -23,6 +23,8 @@ dependencies:
 
   # Mapa
   google_maps_flutter: ^2.10.0
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
 
   # Rede
   http: ^1.2.2
@@ -42,5 +44,6 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
+    - cities.csv
     - .env
     - assets/images/

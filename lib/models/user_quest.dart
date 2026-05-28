@@ -28,6 +28,7 @@ class UserQuest {
   final String details;
   final int xp;
   final String iconName;
+  final DateTime? createdAt;
 
   const UserQuest({
     required this.id,
@@ -37,6 +38,7 @@ class UserQuest {
     required this.details,
     required this.xp,
     required this.iconName,
+    this.createdAt,
   });
 
   IconData get icon => iconFromName(iconName);
@@ -50,6 +52,9 @@ class UserQuest {
       details: map['details'] as String? ?? '',
       xp: map['xp'] as int? ?? 100,
       iconName: map['icon_name'] as String? ?? 'star',
+      createdAt: map['created_at'] is String
+          ? DateTime.tryParse(map['created_at'] as String)
+          : null,
     );
   }
 
@@ -68,6 +73,7 @@ class UserQuest {
     String? details,
     int? xp,
     String? iconName,
+    DateTime? createdAt,
   }) {
     return UserQuest(
       id: id,
@@ -77,6 +83,7 @@ class UserQuest {
       details: details ?? this.details,
       xp: xp ?? this.xp,
       iconName: iconName ?? this.iconName,
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 }

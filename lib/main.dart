@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,7 +12,15 @@ Future<void> main() async {
 
   // Carrega .env. Se não existir, mostra tela de erro em vez de crashar.
   try {
-    await dotenv.load(fileName: '.env');
+    await dotenv
+        .load(fileName: '.env')
+        .timeout(const Duration(seconds: 6));
+  } on TimeoutException {
+    runApp(const _StartupErrorApp(
+      message:
+          'Tempo de espera excedido ao carregar o .env.\nRecarregue a página e tente novamente.',
+    ));
+    return;
   } catch (e) {
     debugPrint('Falha ao carregar .env: $e');
     runApp(const _StartupErrorApp(
@@ -32,7 +42,15 @@ Future<void> main() async {
   }
 
   try {
-    await Supabase.initialize(url: url, anonKey: anonKey);
+    await Supabase
+        .initialize(url: url, anonKey: anonKey)
+        .timeout(const Duration(seconds: 12));
+  } on TimeoutException {
+    runApp(const _StartupErrorApp(
+      message:
+          'Tempo de espera excedido ao conectar ao Supabase.\nVerifique sua internet e as chaves no .env.',
+    ));
+    return;
   } catch (e, s) {
     debugPrint('Falha ao inicializar Supabase: $e\n$s');
     runApp(_StartupErrorApp(
