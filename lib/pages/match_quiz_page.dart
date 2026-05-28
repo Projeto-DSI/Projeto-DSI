@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 import '../models/city_location.dart';
-import '../services/nominatim_service.dart';
+import '../providers/city_provider.dart';
+import '../services/city_dataset_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_text_field.dart';
 
-class MatchQuizPage extends StatefulWidget {
+class MatchQuizPage extends ConsumerStatefulWidget {
   final ValueChanged<CityLocation> onCityFound;
 
   const MatchQuizPage({super.key, required this.onCityFound});
 
   @override
-  State<MatchQuizPage> createState() => _MatchQuizPageState();
+  ConsumerState<MatchQuizPage> createState() => _MatchQuizPageState();
 }
 
-class _MatchQuizPageState extends State<MatchQuizPage> {
+class _MatchQuizPageState extends ConsumerState<MatchQuizPage> {
   final _destination = TextEditingController();
-  final _nominatim = NominatimService();
-  final _values = <double>[50, 50, 75];
+  final _values = <double>[3, 3, 4];
   bool _loading = false;
 
   static const _sliders = <(String, String, String)>[
@@ -42,6 +43,10 @@ class _MatchQuizPageState extends State<MatchQuizPage> {
     ));
   }
 
+  double _toPercent(double value) {
+    return ((value - 1) / 4) * 100;
+  }
+
   Future<void> _find() async {
     final city = _destination.text.trim();
     if (city.isEmpty) {
@@ -50,15 +55,37 @@ class _MatchQuizPageState extends State<MatchQuizPage> {
     }
     setState(() => _loading = true);
     try {
-      final result = await _nominatim.searchCity(city);
-      if (result == null) {
-        _toast('Cidade "$city" não encontrada. Tente outro nome.', error: true);
+      final preferences = RankingPreferences(
+        budget: _toPercent(_values[0]),
+        tourismDistance: _toPercent(_values[1]),
+        safetyPriority: _toPercent(_values[2]),
+      );
+
+      ref.read(rankingPreferencesProvider.notifier).state = preferences;
+
+      final rankedDistricts = await cityDatasetService.rankDistrictsForCity(
+        city,
+        preferences: preferences,
+      );
+      if (rankedDistricts.isEmpty) {
+        _toast('Erro ao carregar', error: true);
         return;
       }
-      _toast('Explorando ${result.name}!');
-      widget.onCityFound(result);
+
+      final bestDistrict = rankedDistricts.first;
+
+      final location = CityLocation(
+        name: bestDistrict.city,
+        lat: bestDistrict.latitude,
+        lng: bestDistrict.longitude,
+        district: bestDistrict.district,
+      );
+
+      _toast(
+          'Melhor distrito encontrado: ${bestDistrict.district} (${bestDistrict.city})');
+      widget.onCityFound(location);
     } catch (_) {
-      _toast('Erro ao buscar a cidade. Verifique sua conexão.', error: true);
+      _toast('Erro ao carregar', error: true);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -147,7 +174,7 @@ class _MatchQuizPageState extends State<MatchQuizPage> {
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: AppColors.foreground)),
-            Text('${_values[i].round()}%',
+            Text(_values[i].toStringAsFixed(0),
                 style: const TextStyle(
                     fontSize: 12, color: AppColors.mutedForeground)),
           ],
@@ -155,8 +182,9 @@ class _MatchQuizPageState extends State<MatchQuizPage> {
         const SizedBox(height: 8),
         Slider(
           value: _values[i],
-          min: 0,
-          max: 100,
+          min: 1,
+          max: 5,
+          divisions: 4,
           onChanged: (v) => setState(() => _values[i] = v),
         ),
         Row(
