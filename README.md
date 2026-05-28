@@ -1,6 +1,6 @@
 # BairroMatch — Flutter
 
-Versão Flutter do app original (vibe-coral-quest, feito no Lovable). Mantém paridade visual e funcional: autenticação Supabase (email/senha + Google), quiz de match, mapa com Leaflet (flutter_map + tiles CartoDB), missões gamificadas, perfil e recuperação de senha.
+Versão Flutter do app original. Mantém paridade visual e funcional: autenticação Supabase (email/senha + Google), quiz de match, mapa com Leaflet (flutter_map + tiles CartoDB), missões gamificadas, perfil e recuperação de senha.
 
 ## Stack
 
