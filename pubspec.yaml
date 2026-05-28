@@ -21,9 +21,8 @@ dependencies:
   # Backend
   supabase_flutter: ^2.8.0
 
-  # Mapa (equivalente ao Leaflet)
-  flutter_map: ^7.0.2
-  latlong2: ^0.9.1
+  # Mapa
+  google_maps_flutter: ^2.10.0
 
   # Rede
   http: ^1.2.2
