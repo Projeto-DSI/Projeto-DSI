@@ -447,38 +447,51 @@ class _MapExplorerPageState extends ConsumerState<MapExplorerPage> {
                                 ),
                                 textAlign: TextAlign.center,
                               ),
-                            )
-                          : Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        namesByDistrict[
-                                                _districtCoordKey(
-                                                    displayedDistrict)] ??
-                                            displayedDistrict.district,
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                          color: AppColors.foreground,
-                                        ),
-                                      ),
-                                    ),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.coralLight,
-                                        borderRadius:
-                                            BorderRadius.circular(999),
-                                      ),
-                                      child: Text(
-                                        '${displayedDistrict.overallScore.toStringAsFixed(0)}% Match',
-                                        style: const TextStyle(
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        const Row(
+                          children: [
+                            Icon(LucideIcons.star,
+                                size: 14, color: AppColors.warning),
+                            SizedBox(width: 6),
+                            Text('4.7 · Vibrante & Criativo · Seguro',
+                                style: TextStyle(
+                                    fontSize: 13,
+                                    color: AppColors.mutedForeground)),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        const Row(
+                          children: [
+                            Expanded(child: _Stat('Média/Noite', r'$50')),
+                            SizedBox(width: 12),
+                            Expanded(child: _Stat('Caminhabilidade', '88')),
+                            SizedBox(width: 12),
+                            Expanded(child: _Stat('Cafés', '90+')),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Fotos da Comunidade',
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.foreground)),
+                            TextButton(
+                              onPressed: () => PhotoGalleryDialog.show(context,
+                                  photos: _photos),
+                              style: TextButton.styleFrom(
+                                  foregroundColor: AppColors.coral,
+                                  padding: EdgeInsets.zero),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text('Ver todas',
+                                      style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.bold,
                                           color: AppColors.coralDark,

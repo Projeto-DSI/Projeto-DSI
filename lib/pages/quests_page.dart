@@ -3,10 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 import '../models/quest.dart';
-import '../models/user_quest.dart';
-import '../providers/auth_provider.dart';
-import '../providers/quest_provider.dart';
-import '../providers/user_quest_provider.dart';
+import '../providers/firestore_provider.dart';
 import '../theme/app_theme.dart';
 import 'quest_form_page.dart';
 
@@ -127,12 +124,25 @@ class _QuestsPageState extends ConsumerState<QuestsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final currentUser = ref.watch(currentUserProvider);
-    final completed = ref.watch(completedQuestsProvider);
-    final userQuestsAsync = ref.watch(userQuestsProvider);
-    final userQuests = userQuestsAsync.valueOrNull ?? const <UserQuest>[];
+    final completedAsync = ref.watch(completedQuestsProvider);
 
-    final totalXpDefault = defaultQuests
+    return completedAsync.when(
+      data: (completed) => _buildContent(completed),
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Text(
+            'Erro ao carregar missões 😕\n$e',
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContent(List<String> completed) {
+    final totalXp = defaultQuests
         .where((q) => completed.contains(q.id))
         .fold<int>(0, (sum, q) => sum + q.xp);
 
@@ -203,14 +213,15 @@ class _QuestsPageState extends ConsumerState<QuestsPage> {
                                 : 'default-${defaultQuests[i].id}'),
                         onComplete: () {
                           final q = defaultQuests[i];
-                          ref.read(completedQuestsProvider.notifier).complete(q.id);
+                          ref.read(completeQuestProvider(q.id));
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                             content: Text('+${q.xp} XP ganhos! 🎉'),
                             behavior: SnackBarBehavior.floating,
                           ));
                         },
                       ),
-                      if (i < defaultQuests.length - 1) const SizedBox(height: 12),
+                      if (i < defaultQuests.length - 1)
+                        const SizedBox(height: 12),
                     ],
                     const SizedBox(height: 28),
                     Row(
