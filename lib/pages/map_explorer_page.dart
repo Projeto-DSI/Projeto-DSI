@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 import '../providers/city_provider.dart';
@@ -15,19 +14,50 @@ const _photos = [
   'assets/images/neighborhood-4.jpg',
 ];
 
-class MapExplorerPage extends ConsumerWidget {
+class MapExplorerPage extends ConsumerStatefulWidget {
   const MapExplorerPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MapExplorerPage> createState() => _MapExplorerPageState();
+}
+
+class _MapExplorerPageState extends ConsumerState<MapExplorerPage> {
+  GoogleMapController? _mapController;
+
+  @override
+  void dispose() {
+    _mapController?.dispose();
+    super.dispose();
+  }
+
+  Set<Marker> _buildMarkers(double lat, double lng) {
+    final center = LatLng(lat, lng);
+    final neighborhoods = [
+      _Neighborhood('Bairro A', LatLng(lat + 0.012, lng - 0.015)),
+      _Neighborhood('Bairro B', LatLng(lat - 0.008, lng + 0.018)),
+      _Neighborhood('Bairro C', LatLng(lat + 0.015, lng + 0.010)),
+    ];
+
+    return {
+      Marker(
+        markerId: const MarkerId('center'),
+        position: center,
+        icon: BitmapDescriptor.defaultMarkerWithHue(8.0),
+      ),
+      for (final n in neighborhoods)
+        Marker(
+          markerId: MarkerId(n.name),
+          position: n.pos,
+          infoWindow: InfoWindow(title: n.name),
+          icon: BitmapDescriptor.defaultMarkerWithHue(8.0),
+        ),
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final city = ref.watch(cityProvider);
     final center = LatLng(city.lat, city.lng);
-
-    final neighborhoods = [
-      _Neighborhood('Bairro A', LatLng(city.lat + 0.012, city.lng - 0.015)),
-      _Neighborhood('Bairro B', LatLng(city.lat - 0.008, city.lng + 0.018)),
-      _Neighborhood('Bairro C', LatLng(city.lat + 0.015, city.lng + 0.010)),
-    ];
 
     return SafeArea(
       child: Center(
@@ -40,25 +70,18 @@ class MapExplorerPage extends ConsumerWidget {
                   height: MediaQuery.of(context).size.height * 0.55,
                   child: Stack(
                     children: [
-                      FlutterMap(
-                        options: MapOptions(
-                          initialCenter: center,
-                          initialZoom: 13,
+                      GoogleMap(
+                        initialCameraPosition: CameraPosition(
+                          target: center,
+                          zoom: 13,
                         ),
-                        children: [
-                          TileLayer(
-                            urlTemplate:
-                                'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-                            subdomains: const ['a', 'b', 'c', 'd'],
-                            userAgentPackageName: 'com.bairromatch.app',
-                          ),
-                          MarkerLayer(
-                            markers: [
-                              _marker(center),
-                              for (final n in neighborhoods) _marker(n.pos),
-                            ],
-                          ),
-                        ],
+                        markers: _buildMarkers(city.lat, city.lng),
+                        onMapCreated: (controller) {
+                          _mapController = controller;
+                        },
+                        zoomControlsEnabled: false,
+                        myLocationButtonEnabled: false,
+                        mapToolbarEnabled: false,
                       ),
                       Positioned(
                         top: 16,
@@ -90,8 +113,7 @@ class MapExplorerPage extends ConsumerWidget {
                       borderRadius:
                           BorderRadius.vertical(top: Radius.circular(28)),
                     ),
-                    padding:
-                        const EdgeInsets.fromLTRB(24, 24, 24, 96),
+                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 96),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -149,12 +171,12 @@ class MapExplorerPage extends ConsumerWidget {
                           ],
                         ),
                         const SizedBox(height: 20),
-                        Row(
+                        const Row(
                           children: [
                             Expanded(child: _Stat('Média/Noite', r'$50')),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12),
                             Expanded(child: _Stat('Caminhabilidade', '88')),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12),
                             Expanded(child: _Stat('Cafés', '90+')),
                           ],
                         ),
@@ -192,7 +214,8 @@ class MapExplorerPage extends ConsumerWidget {
                           child: ListView.separated(
                             scrollDirection: Axis.horizontal,
                             itemCount: _photos.length,
-                            separatorBuilder: (_, __) => const SizedBox(width: 12),
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(width: 12),
                             itemBuilder: (_, i) => GestureDetector(
                               onTap: () => PhotoGalleryDialog.show(context,
                                   photos: _photos, initialIndex: i),
@@ -216,29 +239,6 @@ class MapExplorerPage extends ConsumerWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  static Marker _marker(LatLng pos) {
-    return Marker(
-      point: pos,
-      width: 32,
-      height: 32,
-      alignment: Alignment.topCenter,
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.coral,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: const Icon(LucideIcons.mapPin, size: 16, color: Colors.white),
       ),
     );
   }
@@ -277,9 +277,7 @@ class _Chip extends StatelessWidget {
       ),
       child: Text(text,
           style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              color: foreground)),
+              fontSize: 13, fontWeight: FontWeight.bold, color: foreground)),
     );
   }
 }
