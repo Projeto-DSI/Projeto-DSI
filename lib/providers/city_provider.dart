@@ -29,8 +29,15 @@ class ActiveTabNotifier extends Notifier<int> {
 
 final _cityDatasetService = CityDatasetService();
 
-final rankingPreferencesProvider = StateProvider<RankingPreferences>(
-  (ref) => RankingPreferences.balanced,
+class RankingPreferencesNotifier extends Notifier<RankingPreferences> {
+  @override
+  RankingPreferences build() => RankingPreferences.balanced;
+
+  void setPreferences(RankingPreferences prefs) => state = prefs;
+}
+
+final rankingPreferencesProvider = NotifierProvider<RankingPreferencesNotifier, RankingPreferences>(
+  RankingPreferencesNotifier.new,
 );
 
 /// Provider que busca distritos por lat/lng da cidade selecionada
@@ -59,4 +66,6 @@ final bestDistrictProvider = Provider<DistrictScore?>((ref) {
 });
 
 /// Aba ativa na navegação inferior (0..3).
-final activeTabProvider = StateProvider<int>((ref) => 0);
+final activeTabProvider = NotifierProvider<ActiveTabNotifier, int>(
+  ActiveTabNotifier.new,
+);
