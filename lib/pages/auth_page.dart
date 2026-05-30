@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:go_router/go_router.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 
 import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
@@ -92,6 +93,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
       } else {
         await auth.signIn(email: _email.text, password: _password.text);
         _toast('Login realizado!');
+        if (mounted) context.go('/');
       }
     } catch (e) {
       _toast(AuthController.friendlyError(e), error: true);
@@ -126,6 +128,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     setState(() => _loading = true);
     try {
       await ref.read(authControllerProvider).signInWithGoogle();
+      if (mounted) context.go('/');
     } catch (e) {
       _toast(AuthController.friendlyError(e), error: true);
     } finally {
@@ -229,7 +232,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                   const SizedBox(height: 32),
                   OutlinedButton.icon(
                     onPressed: _loading ? null : _handleGoogle,
-                    icon: const Icon(LucideIcons.chrome, size: 18),
+                    icon: const Icon(Icons.login, size: 18),
                     label: const Text('Entrar com Google'),
                   ),
                   const SizedBox(height: 24),

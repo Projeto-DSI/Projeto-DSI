@@ -1,8 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 
 import '../models/district_score.dart';
 import '../providers/city_provider.dart';
@@ -379,8 +379,7 @@ class _MapExplorerPageState extends ConsumerState<MapExplorerPage> {
                                                     districtName,
                                                     style: TextStyle(
                                                       fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.bold,
+                                                      fontWeight: FontWeight.bold,
                                                       color: isFirst
                                                           ? AppColors.coralDark
                                                           : AppColors.foreground,
@@ -393,8 +392,7 @@ class _MapExplorerPageState extends ConsumerState<MapExplorerPage> {
                                                 'Lazer ${district.leisureScore.toStringAsFixed(0)} · Segurança ${district.safetyScore.toStringAsFixed(0)}',
                                                 style: const TextStyle(
                                                   fontSize: 11,
-                                                  color: AppColors
-                                                      .mutedForeground,
+                                                  color: AppColors.mutedForeground,
                                                 ),
                                               ),
                                             ],
@@ -447,103 +445,43 @@ class _MapExplorerPageState extends ConsumerState<MapExplorerPage> {
                                 ),
                                 textAlign: TextAlign.center,
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        const Row(
-                          children: [
-                            Icon(LucideIcons.star,
-                                size: 14, color: AppColors.warning),
-                            SizedBox(width: 6),
-                            Text('4.7 · Vibrante & Criativo · Seguro',
-                                style: TextStyle(
-                                    fontSize: 13,
-                                    color: AppColors.mutedForeground)),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        const Row(
-                          children: [
-                            Expanded(child: _Stat('Média/Noite', r'$50')),
-                            SizedBox(width: 12),
-                            Expanded(child: _Stat('Caminhabilidade', '88')),
-                            SizedBox(width: 12),
-                            Expanded(child: _Stat('Cafés', '90+')),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text('Fotos da Comunidade',
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.foreground)),
-                            TextButton(
-                              onPressed: () => PhotoGalleryDialog.show(context,
-                                  photos: _photos),
-                              style: TextButton.styleFrom(
-                                  foregroundColor: AppColors.coral,
-                                  padding: EdgeInsets.zero),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text('Ver todas',
-                                      style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                          color: AppColors.coralDark,
-                                        ),
-                                      ),
-                                    ),
+                            )
+                          : Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 6),
+                                const Row(
+                                  children: [
+                                    Icon(LucideIcons.star,
+                                        size: 14, color: AppColors.warning),
+                                    SizedBox(width: 6),
+                                    Text('4.7 · Vibrante & Criativo · Seguro',
+                                        style: TextStyle(
+                                            fontSize: 13,
+                                            color: AppColors.mutedForeground)),
                                   ],
                                 ),
-                                const SizedBox(height: 12),
-                                Row(
+                                const SizedBox(height: 20),
+                                const Row(
                                   children: [
-                                    Expanded(
-                                      child: _Stat(
-                                        'Lazer',
-                                        displayedDistrict.leisureScore
-                                            .toStringAsFixed(0),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: _Stat(
-                                        'Segurança',
-                                        displayedDistrict.safetyScore
-                                            .toStringAsFixed(0),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: _Stat(
-                                        'Centro',
-                                        displayedDistrict.distanceCityCenter
-                                            .toStringAsFixed(1),
-                                      ),
-                                    ),
+                                    Expanded(child: _Stat('Média/Noite', r'$50')),
+                                    SizedBox(width: 12),
+                                    Expanded(child: _Stat('Caminhabilidade', '88')),
+                                    SizedBox(width: 12),
+                                    Expanded(child: _Stat('Cafés', '90+')),
                                   ],
                                 ),
                                 const SizedBox(height: 24),
                                 Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const Text(
-                                      'Fotos da Comunidade',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.foreground,
-                                      ),
-                                    ),
+                                    const Text('Fotos da Comunidade',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColors.foreground)),
                                     TextButton(
-                                      onPressed: () =>
-                                          PhotoGalleryDialog.show(
+                                      onPressed: () => PhotoGalleryDialog.show(
                                         context,
                                         photos: _photos,
                                       ),
@@ -577,15 +515,13 @@ class _MapExplorerPageState extends ConsumerState<MapExplorerPage> {
                                     separatorBuilder: (_, __) =>
                                         const SizedBox(width: 12),
                                     itemBuilder: (_, i) => GestureDetector(
-                                      onTap: () =>
-                                          PhotoGalleryDialog.show(
+                                      onTap: () => PhotoGalleryDialog.show(
                                         context,
                                         photos: _photos,
                                         initialIndex: i,
                                       ),
                                       child: ClipRRect(
-                                        borderRadius:
-                                            BorderRadius.circular(16),
+                                        borderRadius: BorderRadius.circular(16),
                                         child: Image.asset(
                                           _photos[i],
                                           width: 112,
@@ -720,4 +656,3 @@ class _ZoomButton extends StatelessWidget {
     );
   }
 }
-

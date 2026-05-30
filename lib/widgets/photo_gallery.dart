@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 
 /// Diálogo fullscreen de galeria de fotos com swipe horizontal.
 class PhotoGalleryDialog extends StatefulWidget {

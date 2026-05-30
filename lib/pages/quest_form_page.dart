@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 
 import '../models/user_quest.dart';
 import '../providers/auth_provider.dart';
@@ -71,7 +71,7 @@ class _QuestFormPageState extends ConsumerState<QuestFormPage> {
       } else {
         await notifier.add(UserQuest(
           id: '',
-          userId: user.id,
+          userId: user.uid,
           title: _title.text.trim(),
           subtitle: _subtitle.text.trim(),
           details: _details.text.trim(),
