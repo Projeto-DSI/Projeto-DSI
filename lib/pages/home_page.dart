@@ -8,7 +8,6 @@ import 'match_quiz_page.dart';
 import 'profile_page.dart';
 import 'quests_page.dart';
 import '../providers/city_provider.dart';
-import '../providers/firestore_provider.dart';
 
 /// Container principal com bottom nav — equivale ao Index.tsx do React.
 /// A decisão de mostrar login ou home agora é do router (via redirect),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 
 import '../models/city_location.dart';
 import '../providers/city_provider.dart';
@@ -61,7 +61,7 @@ class _MatchQuizPageState extends ConsumerState<MatchQuizPage> {
         safetyPriority: _toPercent(_values[2]),
       );
 
-      ref.read(rankingPreferencesProvider.notifier).state = preferences;
+      ref.read(rankingPreferencesProvider.notifier).setPreferences(preferences);
 
       final rankedDistricts = await cityDatasetService.rankDistrictsForCity(
         city,
