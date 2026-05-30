@@ -1,32 +1,33 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../models/user_quest.dart';
 import '../providers/auth_provider.dart';
 import '../services/quest_service.dart';
 
-final userQuestsProvider =
-    StateNotifierProvider<UserQuestNotifier, AsyncValue<List<UserQuest>>>(
-  (ref) => UserQuestNotifier(ref),
+final userQuestsProvider = NotifierProvider<UserQuestNotifier, AsyncValue<List<UserQuest>>>(
+  UserQuestNotifier.new,
 );
 
-class UserQuestNotifier
-    extends StateNotifier<AsyncValue<List<UserQuest>>> {
-  UserQuestNotifier(this._ref) : super(const AsyncValue.data(<UserQuest>[])) {
+class UserQuestNotifier extends Notifier<AsyncValue<List<UserQuest>>> {
+  @override
+  AsyncValue<List<UserQuest>> build() {
+    // Initial empty state and start listening to auth changes
     _init();
+    return const AsyncValue.data(<UserQuest>[]);
   }
 
-  final Ref _ref;
-
   void _init() {
-    _ref.listen<User?>(currentUserProvider, (previous, next) {
+    ref.listen<User?>(currentUserProvider, (previous, next) {
       if (next == null) {
         state = const AsyncValue.data(<UserQuest>[]);
         return;
       }
 
-      if (previous?.id != next.id) {
-        load(next.id);
+      final prevUid = previous?.uid;
+      final nextUid = next.uid;
+      if (prevUid != nextUid) {
+        load(nextUid);
       }
     }, fireImmediately: true);
   }

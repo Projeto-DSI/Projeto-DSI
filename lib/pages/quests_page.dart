@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 
 import '../models/quest.dart';
+import '../models/user_quest.dart';
+import '../providers/auth_provider.dart';
+import '../providers/user_quest_provider.dart';
 import '../providers/firestore_provider.dart';
 import '../theme/app_theme.dart';
 import 'quest_form_page.dart';
@@ -142,7 +145,11 @@ class _QuestsPageState extends ConsumerState<QuestsPage> {
   }
 
   Widget _buildContent(List<String> completed) {
-    final totalXp = defaultQuests
+    final currentUser = ref.watch(currentUserProvider);
+    final userQuestsAsync = ref.watch(userQuestsProvider);
+    final userQuests = userQuestsAsync.asData?.value ?? <UserQuest>[];
+
+    final totalXpDefault = defaultQuests
         .where((q) => completed.contains(q.id))
         .fold<int>(0, (sum, q) => sum + q.xp);
 
@@ -300,9 +307,8 @@ class _QuestsPageState extends ConsumerState<QuestsPage> {
                                           : 'user-${visibleQuests[i].id}'),
                                   onComplete: () {
                                     final q = visibleQuests[i];
-                                    ref
-                                        .read(completedQuestsProvider.notifier)
-                                        .complete(q.id);
+                                    // dispara a ação que marca a quest como completa
+                                    ref.read(completeQuestProvider(q.id));
                                     _toast('+${q.xp} XP ganhos! 🎉');
                                   },
                                   onEdit: () => _openEditQuest(visibleQuests[i]),

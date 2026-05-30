@@ -1,36 +1,39 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../models/user_quest.dart';
-import 'supabase_service.dart';
 
 class QuestService {
+  final CollectionReference _collection =
+      FirebaseFirestore.instance.collection('user_quests');
+
   Future<List<UserQuest>> fetchByUser(String userId) async {
-    final data = await supabase
-        .from('user_quests')
-        .select()
-        .eq('user_id', userId)
-        .order('created_at', ascending: false);
-    return (data as List)
-        .map((e) => UserQuest.fromMap(e as Map<String, dynamic>))
-        .toList();
+    final snapshot = await _collection
+        .where('user_id', isEqualTo: userId)
+        .orderBy('created_at', descending: true)
+        .get();
+
+    return snapshot.docs.map((doc) {
+      final data = Map<String, dynamic>.from(doc.data() as Map<String, dynamic>);
+      data['id'] = doc.id;
+      return UserQuest.fromMap(data);
+    }).toList();
   }
 
   Future<UserQuest> create(UserQuest quest) async {
-    final data = await supabase
-        .from('user_quests')
-        .insert(quest.toMap())
-        .select()
-        .single();
+    final payload = {...quest.toMap(), 'created_at': FieldValue.serverTimestamp()};
+    final docRef = await _collection.add(payload);
+    final doc = await docRef.get();
+    final data = Map<String, dynamic>.from(doc.data() as Map<String, dynamic>);
+    data['id'] = doc.id;
     return UserQuest.fromMap(data);
   }
 
   Future<void> update(UserQuest quest) async {
-    await supabase
-        .from('user_quests')
-        .update(quest.toMap())
-        .eq('id', quest.id);
+    await _collection.doc(quest.id).update(quest.toMap());
   }
 
   Future<void> delete(String questId) async {
-    await supabase.from('user_quests').delete().eq('id', questId);
+    await _collection.doc(questId).delete();
   }
 }
 

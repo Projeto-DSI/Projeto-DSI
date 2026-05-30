@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// Mapa de nomes de ícone → IconData para quests criadas pelo usuário.
 const Map<String, IconData> questIconOptions = {
@@ -52,9 +53,11 @@ class UserQuest {
       details: map['details'] as String? ?? '',
       xp: map['xp'] as int? ?? 100,
       iconName: map['icon_name'] as String? ?? 'star',
-      createdAt: map['created_at'] is String
-          ? DateTime.tryParse(map['created_at'] as String)
-          : null,
+      createdAt: map['created_at'] is Timestamp
+          ? (map['created_at'] as Timestamp).toDate()
+          : map['created_at'] is String
+              ? DateTime.tryParse(map['created_at'] as String)
+              : null,
     );
   }
 
