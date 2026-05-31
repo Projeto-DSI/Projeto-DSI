@@ -8,6 +8,7 @@ import 'match_quiz_page.dart';
 import 'profile_page.dart';
 import 'quests_page.dart';
 import '../providers/city_provider.dart';
+import '../providers/app_repository_provider.dart';
 
 /// Container principal com bottom nav — equivale ao Index.tsx do React.
 /// A decisão de mostrar login ou home agora é do router (via redirect),
@@ -16,7 +17,9 @@ class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context, WidgetRef ref ) {
+    ref.watch(appDataLoaderProvider);
+    
     final authAsync = ref.watch(authStateProvider);
 
     // Loading inicial enquanto o Supabase hidrata a sessão.

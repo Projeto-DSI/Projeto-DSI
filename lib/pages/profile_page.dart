@@ -21,7 +21,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   bool _saving = false;
   bool _loaded = false;
  
-  List<FavoriteCity> _favCities = [];
+  final List<FavoriteCity> _favCities = [];
   int _questCount = 0;
   int _totalXp = 0;
  
