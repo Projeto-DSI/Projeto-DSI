@@ -6,7 +6,10 @@ import 'package:lucide_flutter/lucide_flutter.dart';
 
 import '../models/district_score.dart';
 import '../providers/city_provider.dart';
+import '../providers/review_provider.dart';
+import '../services/district_key.dart';
 import '../services/nominatim_service.dart';
+import 'district_reviews_page.dart';
 import '../theme/app_theme.dart';
 import '../widgets/photo_gallery.dart';
 
@@ -450,17 +453,48 @@ class _MapExplorerPageState extends ConsumerState<MapExplorerPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const SizedBox(height: 6),
-                                const Row(
-                                  children: [
-                                    Icon(LucideIcons.star,
-                                        size: 14, color: AppColors.warning),
-                                    SizedBox(width: 6),
-                                    Text('4.7 · Vibrante & Criativo · Seguro',
-                                        style: TextStyle(
-                                            fontSize: 13,
-                                            color: AppColors.mutedForeground)),
-                                  ],
-                                ),
+                                Builder(builder: (context) {
+                                    final districtKey = generateDistrictKey(displayedDistrict);
+                                    final stats = ref.watch(reviewStatsProvider(districtKey));
+                                    return Row(
+                                      children: [
+                                        const Icon(LucideIcons.star, size: 14, color: AppColors.warning),
+                                        const SizedBox(width: 6),
+                                        stats.when(
+                                          data: (s) {
+                                            final avg = (s['average'] as double?) ?? 0.0;
+                                            final count = (s['count'] as int?) ?? 0;
+                                            return Text('${avg.toStringAsFixed(1)} · $count avaliações',
+                                                style: const TextStyle(fontSize: 13, color: AppColors.mutedForeground));
+                                          },
+                                          loading: () => const Text('Carregando avaliações...', style: TextStyle(fontSize: 13, color: AppColors.mutedForeground)),
+                                          error: (_, __) => const Text('Sem avaliações', style: TextStyle(fontSize: 13, color: AppColors.mutedForeground)),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).push(MaterialPageRoute(
+                                              builder: (_) => DistrictReviewsPage(
+                                                districtKey: districtKey,
+                                                city: displayedDistrict.city,
+                                                district: displayedDistrict.district,
+                                                latitude: displayedDistrict.latitude,
+                                                longitude: displayedDistrict.longitude,
+                                              ),
+                                            ));
+                                          },
+                                          style: TextButton.styleFrom(foregroundColor: AppColors.coral, padding: EdgeInsets.zero),
+                                          child: const Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text('Avaliações', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                                              Icon(LucideIcons.chevronRight, size: 14),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  }),
                                 const SizedBox(height: 20),
                                 const Row(
                                   children: [
