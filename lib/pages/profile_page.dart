@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
- 
+
 import '../models/favorite_city.dart';
+import '../models/itinerary.dart';
 import '../providers/auth_provider.dart';
+import '../providers/city_provider.dart';
 import '../providers/firestore_provider.dart';
+import '../providers/itinerary_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_text_field.dart';
  
@@ -241,6 +244,112 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         .toList(),
                   ),
                 const SizedBox(height: 32),
+                // ── Meus Roteiros ────────────────────────────────────────
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Meus Roteiros',
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.foreground),
+                    ),
+                    GestureDetector(
+                      onTap: () => ref.read(activeTabProvider.notifier).setTab(2),
+                      child: const Text(
+                        'Ver todos',
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.coral,
+                            fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Consumer(
+                  builder: (context, ref, _) {
+                    final itinerariesAsync = ref.watch(itineraryProvider);
+                    return itinerariesAsync.when(
+                      loading: () => const Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          child: CircularProgressIndicator(
+                              color: AppColors.coral, strokeWidth: 2),
+                        ),
+                      ),
+                      error: (e, _) => Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppColors.secondary,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: const Text(
+                          'Erro ao carregar roteiros.',
+                          style: TextStyle(
+                              fontSize: 13, color: AppColors.mutedForeground),
+                        ),
+                      ),
+                      data: (itineraries) {
+                        if (itineraries.isEmpty) {
+                          return Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: AppColors.secondary,
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: Column(
+                              children: [
+                                const Text(
+                                  'Nenhum roteiro criado ainda.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      fontSize: 13,
+                                      color: AppColors.mutedForeground),
+                                ),
+                                const SizedBox(height: 10),
+                                TextButton.icon(
+                                  onPressed: () => ref.read(activeTabProvider.notifier).setTab(2),
+                                  icon: const Icon(LucideIcons.plus, size: 14),
+                                  label: const Text('Criar meu primeiro roteiro'),
+                                  style: TextButton.styleFrom(
+                                      foregroundColor: AppColors.coral),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+
+                        // Mostra até 3 roteiros recentes
+                        final recent = itineraries.take(3).toList();
+                        return Column(
+                          children: [
+                            ...recent.map((it) => _ItineraryTile(
+                                  itinerary: it,
+                                  onTap: () => ref.read(activeTabProvider.notifier).setTab(2),
+                                )),
+                            if (itineraries.length > 3)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: GestureDetector(
+                                  onTap: () => ref.read(activeTabProvider.notifier).setTab(2),
+                                  child: Text(
+                                    '+ ${itineraries.length - 3} roteiro(s) a mais',
+                                    style: const TextStyle(
+                                        fontSize: 12,
+                                        color: AppColors.coral,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
+                const SizedBox(height: 32),
                 const Text('Progresso das Missões',
                     style: TextStyle(
                         fontSize: 14,
@@ -290,6 +399,71 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   }
 }
  
+class _ItineraryTile extends StatelessWidget {
+  final Itinerary itinerary;
+  final VoidCallback onTap;
+
+  const _ItineraryTile({required this.itinerary, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: AppColors.secondary,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppColors.coralLight,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(LucideIcons.mapPin,
+                    size: 18, color: AppColors.coral),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      itinerary.name,
+                      style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.foreground),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${itinerary.cityName} · ${itinerary.placeCount} local${itinerary.placeCount != 1 ? 'is' : ''}',
+                      style: const TextStyle(
+                          fontSize: 12, color: AppColors.mutedForeground),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(LucideIcons.chevronRight,
+                  size: 16, color: AppColors.mutedForeground),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _StatCard extends StatelessWidget {
   final IconData icon;
   final String value;
