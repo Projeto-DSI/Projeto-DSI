@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
 
@@ -54,7 +55,8 @@ class _ItineraryFormPageState extends ConsumerState<ItineraryFormPage> {
       lastDate: DateTime.now().add(const Duration(days: 730)),
       builder: (ctx, child) => Theme(
         data: Theme.of(ctx).copyWith(
-          colorScheme: Theme.of(ctx).colorScheme.copyWith(primary: AppColors.coral),
+          colorScheme:
+              Theme.of(ctx).colorScheme.copyWith(primary: AppColors.coral),
         ),
         child: child!,
       ),
@@ -70,6 +72,19 @@ class _ItineraryFormPageState extends ConsumerState<ItineraryFormPage> {
         _selectedPlaces.add(place);
       }
     });
+  }
+
+  Future<void> _addCustomPlace() async {
+    final result = await showDialog<Place>(
+      context: context,
+      builder: (ctx) => const _AddCustomPlaceDialog(),
+    );
+
+    if (result != null) {
+      setState(() {
+        _selectedPlaces.add(result);
+      });
+    }
   }
 
   Future<void> _submit() async {
@@ -182,7 +197,8 @@ class _ItineraryFormPageState extends ConsumerState<ItineraryFormPage> {
               ),
               child: Row(
                 children: [
-                  const Icon(LucideIcons.mapPin, size: 16, color: AppColors.coral),
+                  const Icon(LucideIcons.mapPin,
+                      size: 16, color: AppColors.coral),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -277,8 +293,8 @@ class _ItineraryFormPageState extends ConsumerState<ItineraryFormPage> {
                 const Spacer(),
                 if (_selectedPlaces.isNotEmpty)
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: AppColors.coralLight,
                       borderRadius: BorderRadius.circular(20),
@@ -293,12 +309,137 @@ class _ItineraryFormPageState extends ConsumerState<ItineraryFormPage> {
                   ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
+
+            // Botão para adicionar lugar personalizado
+            OutlinedButton.icon(
+              onPressed: _addCustomPlace,
+              icon: const Icon(LucideIcons.plus, size: 16),
+              label: const Text('Adicionar Local Personalizado'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.coral,
+                side: const BorderSide(color: AppColors.coral),
+                minimumSize: const Size(double.infinity, 44),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Locais personalizados adicionados
+            ...() {
+              final customPlaces = _selectedPlaces
+                  .where((p) => p.id.startsWith('custom-'))
+                  .toList();
+              if (customPlaces.isEmpty) return <Widget>[];
+
+              return [
+                Row(
+                  children: [
+                    const Icon(LucideIcons.user,
+                        size: 14, color: AppColors.coral),
+                    const SizedBox(width: 6),
+                    const Text(
+                      'Meus Locais',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.foreground,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                ...customPlaces.map((place) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.coralLight,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.coral, width: 1),
+                        ),
+                        child: Row(
+                          children: [
+                            Text(place.category.emoji,
+                                style: const TextStyle(fontSize: 20)),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    place.name,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                      color: AppColors.coral,
+                                    ),
+                                  ),
+                                  if (place.description.isNotEmpty) ...[
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      place.description,
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        color: AppColors.mutedForeground,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () => setState(() {
+                                _selectedPlaces
+                                    .removeWhere((p) => p.id == place.id);
+                              }),
+                              icon: const Icon(LucideIcons.x, size: 18),
+                              color: AppColors.coral,
+                              tooltip: 'Remover',
+                            ),
+                          ],
+                        ),
+                      ),
+                    )),
+                const SizedBox(height: 16),
+              ];
+            }(),
+
+            // Descrição das sugestões
+            if (allPlaces.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Row(
+                  children: [
+                    const Icon(
+                      LucideIcons.lightbulb,
+                      size: 14,
+                      color: AppColors.mutedForeground,
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        'Sugestões de pontos turísticos em ${city.name}',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.foreground,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
             if (allPlaces.isEmpty)
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 16),
                 child: Text(
-                  'Nenhum local disponível para esta cidade.',
+                  'Nenhuma sugestão disponível. Use o botão acima para adicionar locais personalizados.',
                   style: TextStyle(color: AppColors.mutedForeground),
                 ),
               )
@@ -368,8 +509,7 @@ class _PlaceCheckTile extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Text(place.category.emoji,
-                  style: const TextStyle(fontSize: 22)),
+              Text(place.category.emoji, style: const TextStyle(fontSize: 22)),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -380,9 +520,8 @@ class _PlaceCheckTile extends StatelessWidget {
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
-                        color: selected
-                            ? AppColors.coral
-                            : AppColors.foreground,
+                        color:
+                            selected ? AppColors.coral : AppColors.foreground,
                       ),
                     ),
                     if (place.description.isNotEmpty) ...[
@@ -408,8 +547,7 @@ class _PlaceCheckTile extends StatelessWidget {
                           child: Text(
                             place.category.label,
                             style: const TextStyle(
-                                fontSize: 11,
-                                color: AppColors.mutedForeground),
+                                fontSize: 11, color: AppColors.mutedForeground),
                           ),
                         ),
                         if (place.rating != null) ...[
@@ -420,8 +558,7 @@ class _PlaceCheckTile extends StatelessWidget {
                           Text(
                             place.rating!.toStringAsFixed(1),
                             style: const TextStyle(
-                                fontSize: 12,
-                                color: AppColors.mutedForeground),
+                                fontSize: 12, color: AppColors.mutedForeground),
                           ),
                         ],
                       ],
@@ -438,9 +575,8 @@ class _PlaceCheckTile extends StatelessWidget {
                   color: selected ? AppColors.coral : Colors.transparent,
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: selected
-                        ? AppColors.coral
-                        : AppColors.mutedForeground,
+                    color:
+                        selected ? AppColors.coral : AppColors.mutedForeground,
                     width: 2,
                   ),
                 ),
@@ -452,6 +588,157 @@ class _PlaceCheckTile extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _AddCustomPlaceDialog extends StatefulWidget {
+  const _AddCustomPlaceDialog();
+
+  @override
+  State<_AddCustomPlaceDialog> createState() => _AddCustomPlaceDialogState();
+}
+
+class _AddCustomPlaceDialogState extends State<_AddCustomPlaceDialog> {
+  final _formKey = GlobalKey<FormState>();
+  late TextEditingController _nameCtrl;
+  late TextEditingController _descriptionCtrl;
+  late String _category;
+  double? _rating;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameCtrl = TextEditingController();
+    _descriptionCtrl = TextEditingController();
+    _category = '';
+  }
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    _descriptionCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: AppColors.background,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      title: const Text(
+        'Adicionar Local Personalizado',
+        style: TextStyle(fontWeight: FontWeight.w700),
+      ),
+      content: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: _nameCtrl,
+                textCapitalization: TextCapitalization.words,
+                decoration: const InputDecoration(
+                  labelText: 'Nome do Local',
+                  hintText: 'Ex: Restaurante Favorito',
+                  prefixIcon: Icon(LucideIcons.mapPin, size: 18),
+                ),
+                validator: (v) =>
+                    v == null || v.trim().isEmpty ? 'Informe um nome' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _descriptionCtrl,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: const InputDecoration(
+                  labelText: 'Descrição (opcional)',
+                  hintText: 'Adicione detalhes sobre o local',
+                  prefixIcon: Icon(LucideIcons.fileText, size: 18),
+                ),
+                maxLines: 2,
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: _category.isEmpty ? null : _category,
+                decoration: const InputDecoration(
+                  labelText: 'Categoria',
+                  prefixIcon: Icon(LucideIcons.tag, size: 18),
+                ),
+                items: PlaceCategory.values.map((category) {
+                  return DropdownMenuItem<String>(
+                    value: category.name,
+                    child: Row(
+                      children: [
+                        Text(category.emoji,
+                            style: const TextStyle(fontSize: 18)),
+                        const SizedBox(width: 8),
+                        Text(category.label),
+                      ],
+                    ),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _category = value ?? '';
+                  });
+                },
+                validator: (v) =>
+                    v == null || v.isEmpty ? 'Selecione uma categoria' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                decoration: const InputDecoration(
+                  labelText: 'Avaliação (opcional)',
+                  hintText: '0.0 - 5.0',
+                  prefixIcon: Icon(LucideIcons.star, size: 18),
+                ),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                onChanged: (v) {
+                  final value = double.tryParse(v);
+                  if (value != null && value >= 0 && value <= 5) {
+                    setState(() {
+                      _rating = value;
+                    });
+                  }
+                },
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancelar'),
+        ),
+        FilledButton(
+          onPressed: () {
+            if (_formKey.currentState!.validate()) {
+              final newPlace = Place(
+                id: 'custom-${DateTime.now().millisecondsSinceEpoch}',
+                name: _nameCtrl.text.trim(),
+                description: _descriptionCtrl.text.trim(),
+                category:
+                    PlaceCategory.values.firstWhere((c) => c.name == _category),
+                latitude: 0.0,
+                longitude: 0.0,
+                rating: _rating,
+              );
+              Navigator.of(context).pop(newPlace);
+            }
+          },
+          style: FilledButton.styleFrom(
+            backgroundColor: AppColors.coral,
+            foregroundColor: Colors.white,
+          ),
+          child: const Text('Adicionar'),
+        ),
+      ],
     );
   }
 }
