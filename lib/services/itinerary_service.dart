@@ -9,14 +9,22 @@ class ItineraryService {
   Future<List<Itinerary>> fetchByUser(String userId) async {
     final snapshot = await _col
         .where('user_id', isEqualTo: userId)
-        .orderBy('created_at', descending: true)
         .get();
 
-    return snapshot.docs.map((doc) {
+    final list = snapshot.docs.map((doc) {
       final data = Map<String, dynamic>.from(doc.data() as Map<String, dynamic>);
       data['id'] = doc.id;
       return Itinerary.fromMap(data);
     }).toList();
+
+    // Ordena por data de criação localmente (evita índice composto no Firestore)
+    list.sort((a, b) {
+      final aDate = a.createdAt ?? DateTime(0);
+      final bDate = b.createdAt ?? DateTime(0);
+      return bDate.compareTo(aDate);
+    });
+
+    return list;
   }
 
   Future<Itinerary> create(Itinerary itinerary) async {
