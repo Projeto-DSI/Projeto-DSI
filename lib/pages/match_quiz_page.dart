@@ -111,12 +111,13 @@ class _MatchQuizPageState extends ConsumerState<MatchQuizPage> {
                           color: AppColors.coral,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
+                          letterSpacing: 1.2,
                         )),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Encontre Sua\nVibe',
+                  'Vibe',
                   style: Theme.of(context).textTheme.displaySmall?.copyWith(
                         fontWeight: FontWeight.w800,
                         height: 1.1,
@@ -147,11 +148,19 @@ class _MatchQuizPageState extends ConsumerState<MatchQuizPage> {
                   if (i < _sliders.length - 1) const SizedBox(height: 28),
                 ],
                 const SizedBox(height: 40),
-                ElevatedButton(
+                ElevatedButton.icon(
                   onPressed: _loading ? null : _find,
-                  child: Text(_loading
-                      ? 'Buscando...'
-                      : 'Encontrar Meu Bairro Perfeito'),
+                  icon: _loading
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(LucideIcons.sparkles, size: 18),
+                  label: Text(_loading ? 'Buscando...' : 'Match'),
                 ),
               ],
             ),
