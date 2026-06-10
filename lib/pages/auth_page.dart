@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
@@ -22,9 +23,41 @@ class _AuthPageState extends ConsumerState<AuthPage> {
   final _password = TextEditingController();
   final _name = TextEditingController();
   bool _loading = false;
+  bool _rememberMe = false;
+
+  static const _keyRememberMe = 'remember_me';
+  static const _keyEmail = 'saved_email';
 
   // Regex simples pra email — evita chamar o Supabase com entrada claramente inválida.
   static final _emailRegex = RegExp(r'^[\w\.\-\+]+@[\w\-]+\.[\w\-\.]+$');
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRememberMe();
+  }
+
+  Future<void> _loadRememberMe() async {
+    final prefs = await SharedPreferences.getInstance();
+    final remember = prefs.getBool(_keyRememberMe) ?? false;
+    if (remember) {
+      final savedEmail = prefs.getString(_keyEmail) ?? '';
+      setState(() {
+        _rememberMe = true;
+        _email.text = savedEmail;
+      });
+    }
+  }
+
+  Future<void> _saveRememberMe() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyRememberMe, _rememberMe);
+    if (_rememberMe) {
+      await prefs.setString(_keyEmail, _email.text.trim());
+    } else {
+      await prefs.remove(_keyEmail);
+    }
+  }
 
   @override
   void dispose() {
@@ -92,6 +125,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
         _toast('Conta criada! Verifique seu email para confirmar.');
       } else {
         await auth.signIn(email: _email.text, password: _password.text);
+        await _saveRememberMe();
         _toast('Login realizado!');
         if (mounted) context.go('/');
       }
@@ -269,19 +303,42 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                     obscureText: true,
                   ),
                   if (isLogin) ...[
-                    const SizedBox(height: 8),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: InkWell(
-                        onTap: () => setState(() => _mode = AuthMode.forgot),
-                        child: const Text(
-                          'Esqueceu a senha?',
-                          style: TextStyle(
-                              color: AppColors.coral,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: Checkbox(
+                            value: _rememberMe,
+                            onChanged: (v) => setState(() => _rememberMe = v ?? false),
+                            activeColor: AppColors.coral,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4)),
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () => setState(() => _rememberMe = !_rememberMe),
+                          child: const Text(
+                            'Lembrar meu email',
+                            style: TextStyle(
+                                fontSize: 13,
+                                color: AppColors.mutedForeground),
+                          ),
+                        ),
+                        const Spacer(),
+                        GestureDetector(
+                          onTap: () => setState(() => _mode = AuthMode.forgot),
+                          child: const Text(
+                            'Esqueceu a senha?',
+                            style: TextStyle(
+                                color: AppColors.coral,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                   const SizedBox(height: 24),
