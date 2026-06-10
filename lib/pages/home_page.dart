@@ -7,6 +7,7 @@ import 'map_explorer_page.dart';
 import 'match_quiz_page.dart';
 import 'profile_page.dart';
 import 'quests_page.dart';
+import 'itineraries_page.dart';
 import '../providers/city_provider.dart';
 
 /// Container principal com bottom nav — equivale ao Index.tsx do React.
@@ -43,6 +44,7 @@ class HomePage extends ConsumerWidget {
         },
       ),
       const MapExplorerPage(),
+      const ItinerariesPage(),
       const QuestsPage(),
       const ProfilePage(),
     ];

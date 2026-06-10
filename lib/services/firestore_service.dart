@@ -36,4 +36,33 @@ class FirestoreService {
     final completed = List<String>.from(doc.data()?['completed'] ?? []);
     return completed.map((id) => {'quest_id': id, 'xp_earned': 0}).toList();
   }
+
+  // ── Roteiros ──────────────────────────────────────────────────────────────
+
+  CollectionReference get _itineraries => _db.collection('itineraries');
+
+  Future<List<Map<String, dynamic>>> getItineraries(String userId) async {
+    final snapshot = await _itineraries
+        .where('user_id', isEqualTo: userId)
+        .orderBy('created_at', descending: true)
+        .get();
+    return snapshot.docs.map((doc) {
+      final data = Map<String, dynamic>.from(doc.data() as Map<String, dynamic>);
+      data['id'] = doc.id;
+      return data;
+    }).toList();
+  }
+
+  Future<String> createItinerary(Map<String, dynamic> data) async {
+    final docRef = await _itineraries.add({
+      ...data,
+      'created_at': FieldValue.serverTimestamp(),
+    });
+    return docRef.id;
+  }
+
+  Future<void> updateItinerary(String id, Map<String, dynamic> data) =>
+      _itineraries.doc(id).update(data);
+
+  Future<void> deleteItinerary(String id) => _itineraries.doc(id).delete();
 }
