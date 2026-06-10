@@ -8,6 +8,7 @@ import '../providers/auth_provider.dart';
 import '../providers/city_provider.dart';
 import '../providers/firestore_provider.dart';
 import '../providers/itinerary_provider.dart';
+import '../providers/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_text_field.dart';
  
@@ -378,6 +379,75 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       ),
                     ],
                   ),
+                ),
+                const SizedBox(height: 32),
+                // ── Acessibilidade ───────────────────────────────────────
+                const Text(
+                  'Acessibilidade',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.foreground,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Consumer(
+                  builder: (context, ref, _) {
+                    final darkAsync = ref.watch(darkModeProvider);
+                    final isDark = darkAsync.value ?? false;
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.secondary,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: ListTile(
+                        leading: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? AppColors.foreground.withValues(alpha: 0.12)
+                                : AppColors.coralLight,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(
+                            isDark ? LucideIcons.moon : LucideIcons.sun,
+                            size: 18,
+                            color: isDark
+                                ? AppColors.mutedForeground
+                                : AppColors.coral,
+                          ),
+                        ),
+                        title: const Text(
+                          'Modo Noturno',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.foreground,
+                          ),
+                        ),
+                        subtitle: Text(
+                          isDark ? 'Tema escuro ativado' : 'Tema claro ativado',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.mutedForeground,
+                          ),
+                        ),
+                        trailing: Switch(
+                          value: isDark,
+                          onChanged: (_) =>
+                              ref.read(darkModeProvider.notifier).toggle(),
+                          activeColor: AppColors.coral,
+                        ),
+                        onTap: () =>
+                            ref.read(darkModeProvider.notifier).toggle(),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 32),
                 OutlinedButton.icon(
