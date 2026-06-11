@@ -200,11 +200,11 @@ class _MatchQuizPageState extends ConsumerState<MatchQuizPage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(left,
-                style: const TextStyle(
-                    fontSize: 11, color: AppColors.mutedForeground)),
+                style: TextStyle(
+                    fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
             Text(right,
-                style: const TextStyle(
-                    fontSize: 11, color: AppColors.mutedForeground)),
+                style: TextStyle(
+                    fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ],
         ),
       ],
