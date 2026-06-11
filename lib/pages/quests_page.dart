@@ -58,19 +58,19 @@ class _QuestsPageState extends ConsumerState<QuestsPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Excluir quest?'),
+        title: Text('Excluir quest?'),
         content: Text('A quest "${quest.title}" será removida permanentemente.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: FilledButton.styleFrom(
               backgroundColor: AppColors.destructive,
             ),
-            child: const Text('Excluir'),
+            child: Text('Excluir'),
           ),
         ],
       ),
@@ -94,7 +94,7 @@ class _QuestsPageState extends ConsumerState<QuestsPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: error ? AppColors.destructive : AppColors.foreground,
+        backgroundColor: error ? AppColors.destructive : Theme.of(context).colorScheme.inverseSurface,
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -131,7 +131,7 @@ class _QuestsPageState extends ConsumerState<QuestsPage> {
 
     return completedAsync.when(
       data: (completed) => _buildContent(completed),
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -177,7 +177,7 @@ class _QuestsPageState extends ConsumerState<QuestsPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('🏆 GAMIFIQUE SUA VIAGEM',
+                    Text('🏆 GAMIFIQUE SUA VIAGEM',
                         style: TextStyle(
                             color: AppColors.coral,
                             fontSize: 14,
@@ -189,12 +189,12 @@ class _QuestsPageState extends ConsumerState<QuestsPage> {
                             .headlineMedium
                             ?.copyWith(
                                 fontWeight: FontWeight.w800,
-                                color: AppColors.foreground)),
+                                color: Theme.of(context).colorScheme.onSurface)),
                     const SizedBox(height: 4),
-                    const Text(
+                    Text(
                       'Complete missões para ganhar XP e desbloquear recompensas.',
                       style: TextStyle(
-                          fontSize: 15, color: AppColors.mutedForeground),
+                          fontSize: 15, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
                     const SizedBox(height: 24),
                     _XpSummary(
@@ -203,11 +203,11 @@ class _QuestsPageState extends ConsumerState<QuestsPage> {
                       total: totalCount,
                     ),
                     const SizedBox(height: 24),
-                    const Text('Missões do app',
+                    Text('Missões do app',
                         style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.foreground)),
+                            color: Theme.of(context).colorScheme.onSurface)),
                     const SizedBox(height: 12),
                     for (var i = 0; i < defaultQuests.length; i++) ...[
                       _QuestCard(
@@ -234,16 +234,16 @@ class _QuestsPageState extends ConsumerState<QuestsPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Suas quests',
+                        Text('Suas quests',
                             style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.foreground)),
+                                color: Theme.of(context).colorScheme.onSurface)),
                         if (currentUser != null)
                           TextButton.icon(
                             onPressed: _openCreateQuest,
-                            icon: const Icon(LucideIcons.plus, size: 14),
-                            label: const Text('Nova quest'),
+                            icon: Icon(LucideIcons.plus, size: 14),
+                            label: Text('Nova quest'),
                             style: TextButton.styleFrom(
                               foregroundColor: AppColors.coral,
                             ),
@@ -258,7 +258,7 @@ class _QuestsPageState extends ConsumerState<QuestsPage> {
                       )
                     else
                       userQuestsAsync.when(
-                        loading: () => const Padding(
+                        loading: () => Padding(
                           padding: EdgeInsets.symmetric(vertical: 20),
                           child: Center(
                             child: SizedBox(
@@ -331,7 +331,7 @@ class _QuestsPageState extends ConsumerState<QuestsPage> {
                   backgroundColor: AppColors.coral,
                   foregroundColor: Colors.white,
                   onPressed: _openCreateQuest,
-                  child: const Icon(LucideIcons.plus, size: 20),
+                  child: Icon(LucideIcons.plus, size: 20),
                 ),
               ),
             ],
@@ -360,7 +360,7 @@ class _UserQuestControls extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.secondary,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
@@ -423,7 +423,7 @@ class _XpSummary extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.secondary,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Row(
@@ -433,26 +433,26 @@ class _XpSummary extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('$totalXp XP',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.foreground)),
+                        color: Theme.of(context).colorScheme.onSurface)),
                 Text('$done/$total missões completas',
-                    style: const TextStyle(
-                        fontSize: 12, color: AppColors.mutedForeground)),
+                    style: TextStyle(
+                        fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
               ],
             ),
           ),
           Container(
             width: 48,
             height: 48,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: AppColors.coral,
               shape: BoxShape.circle,
             ),
             child: Center(
               child: Text('$done',
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.bold)),
@@ -504,7 +504,7 @@ class _QuestCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: isDone
                             ? AppColors.success.withValues(alpha: 0.15)
-                            : AppColors.secondary,
+                            : Theme.of(context).colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: Icon(
@@ -527,15 +527,15 @@ class _QuestCard extends StatelessWidget {
                                   ? TextDecoration.lineThrough
                                   : null,
                               color: isDone
-                                  ? AppColors.mutedForeground
-                                  : AppColors.foreground,
+                                  ? Theme.of(context).colorScheme.onSurfaceVariant
+                                  : Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                           const SizedBox(height: 2),
                           Text(quest.subtitle,
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontSize: 12,
-                                  color: AppColors.mutedForeground)),
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
                         ],
                       ),
                     ),
@@ -548,7 +548,7 @@ class _QuestCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text('+${quest.xp} XP',
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                               color: AppColors.coralDark)),
@@ -559,7 +559,7 @@ class _QuestCard extends StatelessWidget {
                           ? LucideIcons.chevronUp
                           : LucideIcons.chevronDown,
                       size: 16,
-                      color: AppColors.mutedForeground,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ],
                 ),
@@ -572,20 +572,20 @@ class _QuestCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(quest.details,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 13,
                             height: 1.45,
-                            color: AppColors.mutedForeground)),
+                            color: Theme.of(context).colorScheme.onSurfaceVariant)),
                     const SizedBox(height: 12),
                     if (!isDone)
                       ElevatedButton(
                         onPressed: onComplete,
                         style: ElevatedButton.styleFrom(
                             minimumSize: const Size.fromHeight(40)),
-                        child: const Text('Completar Missão'),
+                        child: Text('Completar Missão'),
                       )
                     else
-                      const Row(
+                      Row(
                         children: [
                           Icon(LucideIcons.check,
                               size: 16, color: AppColors.success),
@@ -651,7 +651,7 @@ class _UserQuestCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: isDone
                             ? AppColors.success.withValues(alpha: 0.15)
-                            : AppColors.secondary,
+                            : Theme.of(context).colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: Icon(
@@ -674,17 +674,17 @@ class _UserQuestCard extends StatelessWidget {
                                   ? TextDecoration.lineThrough
                                   : null,
                               color: isDone
-                                  ? AppColors.mutedForeground
-                                  : AppColors.foreground,
+                                  ? Theme.of(context).colorScheme.onSurfaceVariant
+                                  : Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                           if (quest.subtitle.isNotEmpty) ...[
                             const SizedBox(height: 2),
                             Text(
                               quest.subtitle,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
-                                color: AppColors.mutedForeground,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ],
@@ -701,7 +701,7 @@ class _UserQuestCard extends StatelessWidget {
                       ),
                       child: Text(
                         '+${quest.xp} XP',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                           color: AppColors.coralDark,
@@ -714,7 +714,7 @@ class _UserQuestCard extends StatelessWidget {
                           ? LucideIcons.chevronUp
                           : LucideIcons.chevronDown,
                       size: 16,
-                      color: AppColors.mutedForeground,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ],
                 ),
@@ -729,10 +729,10 @@ class _UserQuestCard extends StatelessWidget {
                     if (quest.details.isNotEmpty)
                       Text(
                         quest.details,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
                           height: 1.45,
-                          color: AppColors.mutedForeground,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     if (quest.details.isNotEmpty) const SizedBox(height: 12),
@@ -742,10 +742,10 @@ class _UserQuestCard extends StatelessWidget {
                         style: ElevatedButton.styleFrom(
                           minimumSize: const Size.fromHeight(40),
                         ),
-                        child: const Text('Completar Missão'),
+                        child: Text('Completar Missão'),
                       )
                     else
-                      const Row(
+                      Row(
                         children: [
                           Icon(
                             LucideIcons.check,
@@ -769,16 +769,16 @@ class _UserQuestCard extends StatelessWidget {
                         Expanded(
                           child: OutlinedButton.icon(
                             onPressed: onEdit,
-                            icon: const Icon(LucideIcons.pencil, size: 16),
-                            label: const Text('Editar'),
+                            icon: Icon(LucideIcons.pencil, size: 16),
+                            label: Text('Editar'),
                           ),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: OutlinedButton.icon(
                             onPressed: onDelete,
-                            icon: const Icon(LucideIcons.trash2, size: 16),
-                            label: const Text('Excluir'),
+                            icon: Icon(LucideIcons.trash2, size: 16),
+                            label: Text('Excluir'),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppColors.destructive,
                               side: const BorderSide(
@@ -810,14 +810,14 @@ class _EmptyInfo extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.secondary,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Text(
         message,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 13,
-          color: AppColors.mutedForeground,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
         ),
       ),
     );

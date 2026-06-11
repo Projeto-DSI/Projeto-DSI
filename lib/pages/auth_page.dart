@@ -72,7 +72,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(msg),
-        backgroundColor: error ? AppColors.destructive : AppColors.foreground,
+        backgroundColor: error ? AppColors.destructive : Theme.of(context).colorScheme.inverseSurface,
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -189,24 +189,24 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                 children: [
                   InkWell(
                     onTap: () => setState(() => _mode = AuthMode.login),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(LucideIcons.arrowLeft, size: 16, color: AppColors.mutedForeground),
+                        Icon(LucideIcons.arrowLeft, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
                         SizedBox(width: 4),
                         Text('Voltar',
-                            style: TextStyle(color: AppColors.mutedForeground, fontSize: 14)),
+                            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14)),
                       ],
                     ),
                   ),
                   const SizedBox(height: 24),
                   Text('Recuperar Senha',
                       style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.w800, color: AppColors.foreground)),
+                          fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface)),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Enviaremos um link de recuperação para seu email.',
-                    style: TextStyle(fontSize: 15, color: AppColors.mutedForeground),
+                    style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                   const SizedBox(height: 32),
                   AppTextField(
@@ -241,7 +241,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('BAIRROMATCH',
+                  Text('BAIRROMATCH',
                       style: TextStyle(
                         color: AppColors.coral,
                         fontSize: 14,
@@ -253,7 +253,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                     isLogin ? 'Bem-vindo de volta' : 'Criar conta',
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.w800,
-                          color: AppColors.foreground,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                   ),
                   const SizedBox(height: 4),
@@ -261,26 +261,26 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                     isLogin
                         ? 'Entre para continuar sua jornada.'
                         : 'Comece sua aventura de viagem.',
-                    style: const TextStyle(fontSize: 15, color: AppColors.mutedForeground),
+                    style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                   const SizedBox(height: 32),
                   OutlinedButton.icon(
                     onPressed: _loading ? null : _handleGoogle,
-                    icon: const Icon(Icons.login, size: 18),
-                    label: const Text('Entrar com Google'),
+                    icon: Icon(Icons.login, size: 18),
+                    label: Text('Entrar com Google'),
                   ),
                   const SizedBox(height: 24),
                   Row(
                     children: [
-                      const Expanded(child: Divider(color: AppColors.border)),
+                      Expanded(child: Divider(color: Theme.of(context).colorScheme.outlineVariant)),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         child: Text('ou com email',
                             style: TextStyle(
-                                color: AppColors.mutedForeground.withValues(alpha: 0.9),
+                                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.9),
                                 fontSize: 12)),
                       ),
-                      const Expanded(child: Divider(color: AppColors.border)),
+                      Expanded(child: Divider(color: Theme.of(context).colorScheme.outlineVariant)),
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -320,17 +320,17 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                         const SizedBox(width: 8),
                         GestureDetector(
                           onTap: () => setState(() => _rememberMe = !_rememberMe),
-                          child: const Text(
+                          child: Text(
                             'Lembrar meu email',
                             style: TextStyle(
                                 fontSize: 13,
-                                color: AppColors.mutedForeground),
+                                color: Theme.of(context).colorScheme.onSurfaceVariant),
                           ),
                         ),
                         const Spacer(),
                         GestureDetector(
                           onTap: () => setState(() => _mode = AuthMode.forgot),
-                          child: const Text(
+                          child: Text(
                             'Esqueceu a senha?',
                             style: TextStyle(
                                 color: AppColors.coral,
@@ -355,15 +355,15 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                       children: [
                         Text(
                           isLogin ? 'Não tem conta? ' : 'Já tem conta? ',
-                          style: const TextStyle(
-                              color: AppColors.mutedForeground, fontSize: 14),
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14),
                         ),
                         InkWell(
                           onTap: () => setState(() =>
                               _mode = isLogin ? AuthMode.signup : AuthMode.login),
                           child: Text(
                             isLogin ? 'Criar conta' : 'Entrar',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: AppColors.coral,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600),

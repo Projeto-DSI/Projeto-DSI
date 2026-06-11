@@ -288,7 +288,7 @@ class _MapExplorerPageState extends ConsumerState<MapExplorerPage> {
                               mainAxisAlignment:
                                   MainAxisAlignment.spaceBetween,
                               children: [
-                                _Chip(text: city.name, background: Colors.white),
+                                _Chip(text: city.name),
                                 _Chip(
                                   text: '${topThreeDistricts.length} bairros',
                                   background: AppColors.coral,
@@ -304,17 +304,17 @@ class _MapExplorerPageState extends ConsumerState<MapExplorerPage> {
                   if (topThreeDistricts.isNotEmpty)
                     SliverToBoxAdapter(
                       child: Container(
-                        color: AppColors.background,
+                        color: Theme.of(context).colorScheme.surface,
                         padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'Melhores Opções',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.foreground,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                             const SizedBox(height: 12),
@@ -349,7 +349,7 @@ class _MapExplorerPageState extends ConsumerState<MapExplorerPage> {
                                     decoration: BoxDecoration(
                                       color: isFirst
                                           ? AppColors.coralLight
-                                          : AppColors.secondary,
+                                          : Theme.of(context).colorScheme.surfaceContainerHighest,
                                       borderRadius: BorderRadius.circular(14),
                                       border: Border.all(
                                         color: _selectedDistrict?.district ==
@@ -371,7 +371,7 @@ class _MapExplorerPageState extends ConsumerState<MapExplorerPage> {
                                               Row(
                                                 children: [
                                                   if (isFirst)
-                                                    const Icon(
+                                                    Icon(
                                                       LucideIcons.crown,
                                                       size: 16,
                                                       color: AppColors.warning,
@@ -385,7 +385,7 @@ class _MapExplorerPageState extends ConsumerState<MapExplorerPage> {
                                                       fontWeight: FontWeight.bold,
                                                       color: isFirst
                                                           ? AppColors.coralDark
-                                                          : AppColors.foreground,
+                                                          : Theme.of(context).colorScheme.onSurface,
                                                     ),
                                                   ),
                                                 ],
@@ -393,9 +393,9 @@ class _MapExplorerPageState extends ConsumerState<MapExplorerPage> {
                                               const SizedBox(height: 4),
                                               Text(
                                                 'Lazer ${district.leisureScore.toStringAsFixed(0)} · Segurança ${district.safetyScore.toStringAsFixed(0)}',
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                   fontSize: 11,
-                                                  color: AppColors.mutedForeground,
+                                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                                 ),
                                               ),
                                             ],
@@ -436,15 +436,15 @@ class _MapExplorerPageState extends ConsumerState<MapExplorerPage> {
                     ),
                   SliverToBoxAdapter(
                     child: Container(
-                      color: AppColors.background,
+                      color: Theme.of(context).colorScheme.surface,
                       padding: const EdgeInsets.fromLTRB(24, 24, 24, 96),
                       child: displayedDistrict == null
-                          ? const Center(
+                          ? Center(
                               child: Text(
                                 'Selecione um bairro para ver detalhes',
                                 style: TextStyle(
                                   fontSize: 13,
-                                  color: AppColors.mutedForeground,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -458,17 +458,17 @@ class _MapExplorerPageState extends ConsumerState<MapExplorerPage> {
                                     final stats = ref.watch(reviewStatsProvider(districtKey));
                                     return Row(
                                       children: [
-                                        const Icon(LucideIcons.star, size: 14, color: AppColors.warning),
+                                        Icon(LucideIcons.star, size: 14, color: AppColors.warning),
                                         const SizedBox(width: 6),
                                         stats.when(
                                           data: (s) {
                                             final avg = (s['average'] as double?) ?? 0.0;
                                             final count = (s['count'] as int?) ?? 0;
                                             return Text('${avg.toStringAsFixed(1)} · $count avaliações',
-                                                style: const TextStyle(fontSize: 13, color: AppColors.mutedForeground));
+                                                style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant));
                                           },
-                                          loading: () => const Text('Carregando avaliações...', style: TextStyle(fontSize: 13, color: AppColors.mutedForeground)),
-                                          error: (_, __) => const Text('Sem avaliações', style: TextStyle(fontSize: 13, color: AppColors.mutedForeground)),
+                                          loading: () => Text('Carregando avaliações...', style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                                          error: (_, __) => Text('Sem avaliações', style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant)),
                                         ),
                                         const SizedBox(width: 8),
                                         TextButton(
@@ -484,7 +484,7 @@ class _MapExplorerPageState extends ConsumerState<MapExplorerPage> {
                                             ));
                                           },
                                           style: TextButton.styleFrom(foregroundColor: AppColors.coral, padding: EdgeInsets.zero),
-                                          child: const Row(
+                                          child: Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
                                               Text('Avaliações', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
@@ -496,7 +496,7 @@ class _MapExplorerPageState extends ConsumerState<MapExplorerPage> {
                                     );
                                   }),
                                 const SizedBox(height: 20),
-                                const Row(
+                                Row(
                                   children: [
                                     Expanded(child: _Stat('Média/Noite', r'$50')),
                                     SizedBox(width: 12),
@@ -509,11 +509,11 @@ class _MapExplorerPageState extends ConsumerState<MapExplorerPage> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const Text('Fotos da Comunidade',
+                                    Text('Fotos da Comunidade',
                                         style: TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.bold,
-                                            color: AppColors.foreground)),
+                                            color: Theme.of(context).colorScheme.onSurface)),
                                     TextButton(
                                       onPressed: () => PhotoGalleryDialog.show(
                                         context,
@@ -523,7 +523,7 @@ class _MapExplorerPageState extends ConsumerState<MapExplorerPage> {
                                         foregroundColor: AppColors.coral,
                                         padding: EdgeInsets.zero,
                                       ),
-                                      child: const Row(
+                                      child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Text(
@@ -582,21 +582,22 @@ class _MapExplorerPageState extends ConsumerState<MapExplorerPage> {
 
 class _Chip extends StatelessWidget {
   final String text;
-  final Color background;
-  final Color foreground;
+  final Color? background;
+  final Color? foreground;
 
   const _Chip({
     required this.text,
-    required this.background,
-    this.foreground = AppColors.foreground,
+    this.background,
+    this.foreground,
   });
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: background.withValues(alpha: 0.95),
+        color: (background ?? cs.surface).withValues(alpha: 0.95),
         borderRadius: BorderRadius.circular(999),
         boxShadow: [
           BoxShadow(
@@ -607,7 +608,9 @@ class _Chip extends StatelessWidget {
       ),
       child: Text(text,
           style: TextStyle(
-              fontSize: 13, fontWeight: FontWeight.bold, color: foreground)),
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: foreground ?? cs.onSurface)),
     );
   }
 }
@@ -622,20 +625,20 @@ class _Stat extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.secondary,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
         children: [
           Text(value,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.foreground)),
+                  color: Theme.of(context).colorScheme.onSurface)),
           const SizedBox(height: 2),
           Text(label,
-              style: const TextStyle(
-                  fontSize: 11, color: AppColors.mutedForeground)),
+              style: TextStyle(
+                  fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
         ],
       ),
     );
@@ -675,7 +678,7 @@ class _ZoomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surface,
       elevation: 3,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
@@ -684,7 +687,7 @@ class _ZoomButton extends StatelessWidget {
         child: SizedBox(
           width: 40,
           height: 40,
-          child: Icon(icon, size: 18, color: AppColors.foreground),
+          child: Icon(icon, size: 18, color: Theme.of(context).colorScheme.onSurface),
         ),
       ),
     );

@@ -39,14 +39,14 @@ class _StartupErrorApp extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
+                  Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
                   const SizedBox(height: 16),
                   const Text('Configuração necessária',
                       style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
                   Text(message,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 14, color: Colors.black87)),
+                      style: TextStyle(fontSize: 14, color: Colors.black87)),
                 ],
               ),
             ),

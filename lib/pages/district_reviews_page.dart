@@ -38,7 +38,7 @@ class DistrictReviewsPage extends ConsumerWidget {
             children: [
               Row(
                 children: [
-                  const Icon(LucideIcons.star, color: Colors.amber),
+                  Icon(LucideIcons.star, color: Colors.amber),
                   const SizedBox(width: 8),
                   Expanded(
                     child: ValueListenableBuilder<double>(
@@ -65,7 +65,7 @@ class DistrictReviewsPage extends ConsumerWidget {
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancelar')),
+            TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text('Cancelar')),
             ElevatedButton(
               onPressed: () async {
                 final rating = ratingController.value;
@@ -103,7 +103,7 @@ class DistrictReviewsPage extends ConsumerWidget {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro: $e')));
                 }
               },
-              child: const Text('Salvar'),
+              child: Text('Salvar'),
             ),
           ],
         );
@@ -132,11 +132,11 @@ class DistrictReviewsPage extends ConsumerWidget {
                 return Column(crossAxisAlignment: CrossAxisAlignment.start, 
                 children: [
                     Row(children: [
-                      const Icon(LucideIcons.star, color: Colors.amber),
+                      Icon(LucideIcons.star, color: Colors.amber),
                       const SizedBox(width: 8),
-                      Text('${avg.toStringAsFixed(1)}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text('${avg.toStringAsFixed(1)}', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                       const SizedBox(width: 8),
-                      Text('· $count avaliações', style: const TextStyle(color: Colors.grey)),
+                      Text('· $count avaliações', style: TextStyle(color: Colors.grey)),
                     ]),
                     if (isAuth)
                       ElevatedButton(
@@ -156,7 +156,7 @@ class DistrictReviewsPage extends ConsumerWidget {
             Expanded(
               child: reviewsAsync.when(
                 data: (reviews) {
-                  if (reviews.isEmpty) return const Center(child: Text('Ainda não há avaliações.')); 
+                  if (reviews.isEmpty) return Center(child: Text('Ainda não há avaliações.')); 
                   return ListView.separated(
                     itemCount: reviews.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 8),
@@ -171,11 +171,11 @@ class DistrictReviewsPage extends ConsumerWidget {
                           final confirmed = await showDialog<bool>(
                             context: context,
                             builder: (ctx) => AlertDialog(
-                              title: const Text('Confirmar exclusão'),
-                              content: const Text('Deseja excluir sua avaliação?'),
+                              title: Text('Confirmar exclusão'),
+                              content: Text('Deseja excluir sua avaliação?'),
                               actions: [
-                                TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancelar')),
-                                ElevatedButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Excluir')),
+                                TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text('Cancelar')),
+                                ElevatedButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text('Excluir')),
                               ],
                             ),
                           );
@@ -187,7 +187,7 @@ class DistrictReviewsPage extends ConsumerWidget {
                     },
                   );
                 },
-                loading: () => const Center(child: CircularProgressIndicator()),
+                loading: () => Center(child: CircularProgressIndicator()),
                 error: (e, st) => Center(child: Text('Erro: $e')),
               ),
             ),
@@ -200,7 +200,7 @@ class DistrictReviewsPage extends ConsumerWidget {
                 final existing = userReviewAsync.value;
                 await _showEditDialog(context, ref, existing: existing);
               },
-              child: const Icon(LucideIcons.plus),
+              child: Icon(LucideIcons.plus),
             )
           : null,
     );

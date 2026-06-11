@@ -138,7 +138,7 @@ class _ItineraryFormPageState extends ConsumerState<ItineraryFormPage> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(msg),
-      backgroundColor: error ? AppColors.destructive : AppColors.foreground,
+      backgroundColor: error ? AppColors.destructive : Theme.of(context).colorScheme.inverseSurface,
       behavior: SnackBarBehavior.floating,
     ));
   }
@@ -149,22 +149,22 @@ class _ItineraryFormPageState extends ConsumerState<ItineraryFormPage> {
     final city = ref.watch(cityProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft, color: AppColors.foreground),
+          icon: Icon(LucideIcons.arrowLeft, color: Theme.of(context).colorScheme.onSurface),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           _isEdit ? 'Editar Roteiro' : 'Novo Roteiro',
-          style: const TextStyle(
-              color: AppColors.foreground, fontWeight: FontWeight.w700),
+          style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w700),
         ),
         actions: [
           if (_saving)
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(right: 16),
               child: Center(
                 child: SizedBox(
@@ -177,7 +177,7 @@ class _ItineraryFormPageState extends ConsumerState<ItineraryFormPage> {
           else
             TextButton(
               onPressed: _submit,
-              child: const Text('Salvar',
+              child: Text('Salvar',
                   style: TextStyle(
                       color: AppColors.coral, fontWeight: FontWeight.w700)),
             ),
@@ -197,13 +197,13 @@ class _ItineraryFormPageState extends ConsumerState<ItineraryFormPage> {
               ),
               child: Row(
                 children: [
-                  const Icon(LucideIcons.mapPin,
+                  Icon(LucideIcons.mapPin,
                       size: 16, color: AppColors.coral),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       city.name,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: AppColors.coral,
                           fontWeight: FontWeight.w600,
                           fontSize: 14),
@@ -220,10 +220,10 @@ class _ItineraryFormPageState extends ConsumerState<ItineraryFormPage> {
             TextFormField(
               controller: _nameCtrl,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: 'Ex: Fim de semana no Centro Histórico',
                 prefixIcon: Icon(LucideIcons.bookOpen,
-                    size: 18, color: AppColors.mutedForeground),
+                    size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
               validator: (v) =>
                   v == null || v.trim().isEmpty ? 'Informe um nome' : null,
@@ -239,13 +239,13 @@ class _ItineraryFormPageState extends ConsumerState<ItineraryFormPage> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 decoration: BoxDecoration(
-                  color: AppColors.secondary,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Row(
                   children: [
-                    const Icon(LucideIcons.calendar,
-                        size: 18, color: AppColors.mutedForeground),
+                    Icon(LucideIcons.calendar,
+                        size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -255,16 +255,16 @@ class _ItineraryFormPageState extends ConsumerState<ItineraryFormPage> {
                         style: TextStyle(
                           fontSize: 15,
                           color: _selectedDate == null
-                              ? AppColors.mutedForeground
-                              : AppColors.foreground,
+                              ? Theme.of(context).colorScheme.onSurfaceVariant
+                              : Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ),
                     if (_selectedDate != null)
                       GestureDetector(
                         onTap: () => setState(() => _selectedDate = null),
-                        child: const Icon(LucideIcons.x,
-                            size: 16, color: AppColors.mutedForeground),
+                        child: Icon(LucideIcons.x,
+                            size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
                   ],
                 ),
@@ -301,7 +301,7 @@ class _ItineraryFormPageState extends ConsumerState<ItineraryFormPage> {
                     ),
                     child: Text(
                       '${_selectedPlaces.length} selecionado${_selectedPlaces.length > 1 ? 's' : ''}',
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 12,
                           color: AppColors.coral,
                           fontWeight: FontWeight.w600),
@@ -314,8 +314,8 @@ class _ItineraryFormPageState extends ConsumerState<ItineraryFormPage> {
             // Botão para adicionar lugar personalizado
             OutlinedButton.icon(
               onPressed: _addCustomPlace,
-              icon: const Icon(LucideIcons.plus, size: 16),
-              label: const Text('Adicionar Local Personalizado'),
+              icon: Icon(LucideIcons.plus, size: 16),
+              label: Text('Adicionar Local Personalizado'),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.coral,
                 side: const BorderSide(color: AppColors.coral),
@@ -337,15 +337,15 @@ class _ItineraryFormPageState extends ConsumerState<ItineraryFormPage> {
               return [
                 Row(
                   children: [
-                    const Icon(LucideIcons.user,
+                    Icon(LucideIcons.user,
                         size: 14, color: AppColors.coral),
                     const SizedBox(width: 6),
-                    const Text(
+                    Text(
                       'Meus Locais',
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.foreground,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ],
@@ -363,7 +363,7 @@ class _ItineraryFormPageState extends ConsumerState<ItineraryFormPage> {
                         child: Row(
                           children: [
                             Text(place.category.emoji,
-                                style: const TextStyle(fontSize: 20)),
+                                style: TextStyle(fontSize: 20)),
                             const SizedBox(width: 10),
                             Expanded(
                               child: Column(
@@ -371,7 +371,7 @@ class _ItineraryFormPageState extends ConsumerState<ItineraryFormPage> {
                                 children: [
                                   Text(
                                     place.name,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.w600,
                                       fontSize: 14,
                                       color: AppColors.coral,
@@ -381,9 +381,9 @@ class _ItineraryFormPageState extends ConsumerState<ItineraryFormPage> {
                                     const SizedBox(height: 2),
                                     Text(
                                       place.description,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 11,
-                                        color: AppColors.mutedForeground,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -397,7 +397,7 @@ class _ItineraryFormPageState extends ConsumerState<ItineraryFormPage> {
                                 _selectedPlaces
                                     .removeWhere((p) => p.id == place.id);
                               }),
-                              icon: const Icon(LucideIcons.x, size: 18),
+                              icon: Icon(LucideIcons.x, size: 18),
                               color: AppColors.coral,
                               tooltip: 'Remover',
                             ),
@@ -415,19 +415,19 @@ class _ItineraryFormPageState extends ConsumerState<ItineraryFormPage> {
                 padding: const EdgeInsets.only(bottom: 12),
                 child: Row(
                   children: [
-                    const Icon(
+                    Icon(
                       LucideIcons.lightbulb,
                       size: 14,
-                      color: AppColors.mutedForeground,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
                         'Sugestões de pontos turísticos em ${city.name}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.foreground,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ),
@@ -436,11 +436,11 @@ class _ItineraryFormPageState extends ConsumerState<ItineraryFormPage> {
               ),
 
             if (allPlaces.isEmpty)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.symmetric(vertical: 16),
                 child: Text(
                   'Nenhuma sugestão disponível. Use o botão acima para adicionar locais personalizados.',
-                  style: TextStyle(color: AppColors.mutedForeground),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
               )
             else
@@ -470,10 +470,10 @@ class _Label extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
         text,
-        style: const TextStyle(
+        style: TextStyle(
           fontWeight: FontWeight.w700,
           fontSize: 14,
-          color: AppColors.foreground,
+          color: Theme.of(context).colorScheme.onSurface,
         ),
       );
 }
@@ -500,7 +500,7 @@ class _PlaceCheckTile extends StatelessWidget {
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: selected ? AppColors.coralLight : AppColors.secondary,
+            color: selected ? AppColors.coralLight : Theme.of(context).colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: selected ? AppColors.coral : Colors.transparent,
@@ -509,7 +509,7 @@ class _PlaceCheckTile extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Text(place.category.emoji, style: const TextStyle(fontSize: 22)),
+              Text(place.category.emoji, style: TextStyle(fontSize: 22)),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -521,15 +521,15 @@ class _PlaceCheckTile extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
                         color:
-                            selected ? AppColors.coral : AppColors.foreground,
+                            selected ? AppColors.coral : Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     if (place.description.isNotEmpty) ...[
                       const SizedBox(height: 2),
                       Text(
                         place.description,
-                        style: const TextStyle(
-                            fontSize: 12, color: AppColors.mutedForeground),
+                        style: TextStyle(
+                            fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -541,24 +541,24 @@ class _PlaceCheckTile extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: AppColors.muted,
+                            color: Theme.of(context).colorScheme.surfaceContainerHighest,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
                             place.category.label,
-                            style: const TextStyle(
-                                fontSize: 11, color: AppColors.mutedForeground),
+                            style: TextStyle(
+                                fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
                           ),
                         ),
                         if (place.rating != null) ...[
                           const SizedBox(width: 8),
-                          const Icon(LucideIcons.star,
+                          Icon(LucideIcons.star,
                               size: 12, color: AppColors.warning),
                           const SizedBox(width: 2),
                           Text(
                             place.rating!.toStringAsFixed(1),
-                            style: const TextStyle(
-                                fontSize: 12, color: AppColors.mutedForeground),
+                            style: TextStyle(
+                                fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                           ),
                         ],
                       ],
@@ -576,12 +576,12 @@ class _PlaceCheckTile extends StatelessWidget {
                   shape: BoxShape.circle,
                   border: Border.all(
                     color:
-                        selected ? AppColors.coral : AppColors.mutedForeground,
+                        selected ? AppColors.coral : Theme.of(context).colorScheme.onSurfaceVariant,
                     width: 2,
                   ),
                 ),
                 child: selected
-                    ? const Icon(Icons.check, size: 14, color: Colors.white)
+                    ? Icon(Icons.check, size: 14, color: Colors.white)
                     : null,
               ),
             ],
@@ -624,9 +624,9 @@ class _AddCustomPlaceDialogState extends State<_AddCustomPlaceDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: const Text(
+      title: Text(
         'Adicionar Local Personalizado',
         style: TextStyle(fontWeight: FontWeight.w700),
       ),
@@ -671,7 +671,7 @@ class _AddCustomPlaceDialogState extends State<_AddCustomPlaceDialog> {
                     child: Row(
                       children: [
                         Text(category.emoji,
-                            style: const TextStyle(fontSize: 18)),
+                            style: TextStyle(fontSize: 18)),
                         const SizedBox(width: 8),
                         Text(category.label),
                       ],
@@ -714,7 +714,7 @@ class _AddCustomPlaceDialogState extends State<_AddCustomPlaceDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancelar'),
+          child: Text('Cancelar'),
         ),
         FilledButton(
           onPressed: () {
@@ -736,7 +736,7 @@ class _AddCustomPlaceDialogState extends State<_AddCustomPlaceDialog> {
             backgroundColor: AppColors.coral,
             foregroundColor: Colors.white,
           ),
-          child: const Text('Adicionar'),
+          child: Text('Adicionar'),
         ),
       ],
     );

@@ -95,17 +95,17 @@ class _ErrorScaffold extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.cloud_off, size: 48, color: AppColors.mutedForeground),
+                Icon(Icons.cloud_off, size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 const SizedBox(height: 12),
                 Text(
                   message,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 15, color: AppColors.foreground),
+                  style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSurface),
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: onRetry,
-                  child: const Text('Tentar novamente'),
+                  child: Text('Tentar novamente'),
                 ),
               ],
             ),

@@ -37,7 +37,7 @@ class ReviewTile extends ConsumerWidget {
             backgroundColor: Colors.grey.shade200,
             child: Text(
               review.rating.toStringAsFixed(1),
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
           const SizedBox(width: 12),
@@ -50,11 +50,11 @@ class ReviewTile extends ConsumerWidget {
                   children: [
                     Text(
                       review.userId == current?.uid ? 'Você' : review.userId.substring(0, 6),
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Text(
                       _formatDate(review.createdAt),
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                   ],
                 ),
@@ -67,12 +67,12 @@ class ReviewTile extends ConsumerWidget {
                       children: [
                         if (onEdit != null)
                           IconButton(
-                            icon: const Icon(LucideIcons.edit2, size: 18),
+                            icon: Icon(LucideIcons.edit2, size: 18),
                             onPressed: onEdit,
                           ),
                         if (onDelete != null)
                           IconButton(
-                            icon: const Icon(LucideIcons.trash2, size: 18),
+                            icon: Icon(LucideIcons.trash2, size: 18),
                             onPressed: onDelete,
                           ),
                       ],

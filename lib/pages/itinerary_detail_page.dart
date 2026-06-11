@@ -24,30 +24,30 @@ class ItineraryDetailPage extends ConsumerWidget {
         itinerary;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft, color: AppColors.foreground),
+          icon: Icon(LucideIcons.arrowLeft, color: Theme.of(context).colorScheme.onSurface),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           current.name,
-          style: const TextStyle(
-              color: AppColors.foreground,
+          style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
               fontWeight: FontWeight.w700,
               fontSize: 17),
           overflow: TextOverflow.ellipsis,
         ),
         actions: [
           IconButton(
-            icon: const Icon(LucideIcons.pencil, color: AppColors.coral),
+            icon: Icon(LucideIcons.pencil, color: AppColors.coral),
             tooltip: 'Editar',
             onPressed: () => _openEdit(context, current),
           ),
           IconButton(
-            icon: const Icon(LucideIcons.trash2, color: AppColors.destructive),
+            icon: Icon(LucideIcons.trash2, color: AppColors.destructive),
             tooltip: 'Excluir',
             onPressed: () => _confirmDelete(context, ref, current),
           ),
@@ -71,19 +71,19 @@ class ItineraryDetailPage extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Excluir roteiro?'),
+        title: Text('Excluir roteiro?'),
         content:
             Text('O roteiro "${current.name}" será removido permanentemente.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
                 backgroundColor: AppColors.destructive),
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Excluir'),
+            child: Text('Excluir'),
           ),
         ],
       ),
@@ -124,18 +124,18 @@ class _ItineraryBody extends StatelessWidget {
 
         // ── Linha separadora ───────────────────────────────────────────────
         Row(children: [
-          const Expanded(child: Divider(color: AppColors.border)),
+          Expanded(child: Divider(color: Theme.of(context).colorScheme.outlineVariant)),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Text(
               '${itinerary.placeCount} local${itinerary.placeCount != 1 ? 'is' : ''}',
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.mutedForeground,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w600),
             ),
           ),
-          const Expanded(child: Divider(color: AppColors.border)),
+          Expanded(child: Divider(color: Theme.of(context).colorScheme.outlineVariant)),
         ]),
         const SizedBox(height: 16),
 
@@ -156,20 +156,20 @@ class _ItineraryBody extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.secondary,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(14),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(LucideIcons.notebookPen,
-                    size: 16, color: AppColors.mutedForeground),
+                Icon(LucideIcons.notebookPen,
+                    size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     itinerary.notes!,
-                    style: const TextStyle(
-                        fontSize: 14, color: AppColors.foreground),
+                    style: TextStyle(
+                        fontSize: 14, color: Theme.of(context).colorScheme.onSurface),
                   ),
                 ),
               ],
@@ -195,26 +195,26 @@ class _HeaderInfo extends StatelessWidget {
       children: [
         const SizedBox(height: 8),
         Row(children: [
-          const Icon(LucideIcons.mapPin, size: 14, color: AppColors.coral),
+          Icon(LucideIcons.mapPin, size: 14, color: AppColors.coral),
           const SizedBox(width: 6),
           Text(
             '${itinerary.cityName}  ·  ${itinerary.districtName}',
-            style: const TextStyle(
+            style: TextStyle(
                 fontSize: 13,
-                color: AppColors.mutedForeground,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.w500),
           ),
         ]),
         if (itinerary.date != null) ...[
           const SizedBox(height: 6),
           Row(children: [
-            const Icon(LucideIcons.calendar,
-                size: 14, color: AppColors.mutedForeground),
+            Icon(LucideIcons.calendar,
+                size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
             const SizedBox(width: 6),
             Text(
               _formatDate(itinerary.date!),
-              style: const TextStyle(
-                  fontSize: 13, color: AppColors.mutedForeground),
+              style: TextStyle(
+                  fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ]),
         ],
@@ -259,19 +259,19 @@ class _StatChip extends StatelessWidget {
         padding:
             const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         decoration: BoxDecoration(
-          color: AppColors.muted,
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
-              Icon(icon, size: 12, color: AppColors.mutedForeground),
+              Icon(icon, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
               const SizedBox(width: 4),
             ],
             Text(label,
-                style: const TextStyle(
-                    fontSize: 12, color: AppColors.mutedForeground)),
+                style: TextStyle(
+                    fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ],
         ),
       );
@@ -304,14 +304,14 @@ class _PlaceTimelineTile extends StatelessWidget {
                 Container(
                   width: 28,
                   height: 28,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: AppColors.coral,
                     shape: BoxShape.circle,
                   ),
                   child: Center(
                     child: Text(
                       '$index',
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: Colors.white,
                           fontSize: 12,
                           fontWeight: FontWeight.w700),
@@ -322,7 +322,7 @@ class _PlaceTimelineTile extends StatelessWidget {
                   Expanded(
                     child: Container(
                       width: 2,
-                      color: AppColors.border,
+                      color: Theme.of(context).colorScheme.outlineVariant,
                       margin: const EdgeInsets.symmetric(vertical: 4),
                     ),
                   ),
@@ -337,7 +337,7 @@ class _PlaceTimelineTile extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppColors.secondary,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Column(
@@ -346,26 +346,26 @@ class _PlaceTimelineTile extends StatelessWidget {
                     Row(
                       children: [
                         Text(place.category.emoji,
-                            style: const TextStyle(fontSize: 18)),
+                            style: TextStyle(fontSize: 18)),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             place.name,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontWeight: FontWeight.w700,
                                 fontSize: 15,
-                                color: AppColors.foreground),
+                                color: Theme.of(context).colorScheme.onSurface),
                           ),
                         ),
                         if (place.rating != null) ...[
-                          const Icon(LucideIcons.star,
+                          Icon(LucideIcons.star,
                               size: 13, color: AppColors.warning),
                           const SizedBox(width: 3),
                           Text(
                             place.rating!.toStringAsFixed(1),
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 12,
-                                color: AppColors.mutedForeground,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 fontWeight: FontWeight.w600),
                           ),
                         ],
@@ -375,22 +375,22 @@ class _PlaceTimelineTile extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         place.description,
-                        style: const TextStyle(
-                            fontSize: 13, color: AppColors.mutedForeground),
+                        style: TextStyle(
+                            fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
                     ],
                     if (place.address != null) ...[
                       const SizedBox(height: 6),
                       Row(children: [
-                        const Icon(LucideIcons.navigation,
-                            size: 12, color: AppColors.mutedForeground),
+                        Icon(LucideIcons.navigation,
+                            size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             place.address!,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 12,
-                                color: AppColors.mutedForeground),
+                                color: Theme.of(context).colorScheme.onSurfaceVariant),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -421,27 +421,27 @@ class _EmptyPlaces extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(LucideIcons.mapPinOff,
-                  size: 48, color: AppColors.mutedForeground),
+              Icon(LucideIcons.mapPinOff,
+                  size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 'Nenhum local adicionado',
                 style: TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 18,
-                    color: AppColors.foreground),
+                    color: Theme.of(context).colorScheme.onSurface),
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Edite o roteiro para adicionar pontos de interesse.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.mutedForeground),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
               const SizedBox(height: 24),
               FilledButton.icon(
                 onPressed: onAdd,
-                icon: const Icon(LucideIcons.plus, size: 16),
-                label: const Text('Adicionar Locais'),
+                icon: Icon(LucideIcons.plus, size: 16),
+                label: Text('Adicionar Locais'),
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColors.coral,
                   minimumSize: const Size(0, 44),

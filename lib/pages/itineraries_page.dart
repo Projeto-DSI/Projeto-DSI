@@ -30,7 +30,7 @@ class ItinerariesPage extends ConsumerWidget {
                   itineraries: list,
                   cityName: city.name,
                 ),
-                loading: () => const Center(child: CircularProgressIndicator()),
+                loading: () => Center(child: CircularProgressIndicator()),
                 error: (e, _) => Center(
                   child: Padding(
                     padding: const EdgeInsets.all(24),
@@ -52,8 +52,8 @@ class ItinerariesPage extends ConsumerWidget {
                           MaterialPageRoute(
                               builder: (_) => const ItineraryFormPage()),
                         ),
-                        icon: const Icon(LucideIcons.plus, size: 18),
-                        label: const Text('Novo Roteiro',
+                        icon: Icon(LucideIcons.plus, size: 18),
+                        label: Text('Novo Roteiro',
                             style: TextStyle(fontWeight: FontWeight.w700)),
                         style: FilledButton.styleFrom(
                           backgroundColor: AppColors.coral,
@@ -122,7 +122,7 @@ class _ItinerariesContentState extends ConsumerState<_ItinerariesContent> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('PLANEJE SUA AVENTURA',
+              Text('PLANEJE SUA AVENTURA',
                   style: TextStyle(
                       color: AppColors.coral,
                       fontSize: 14,
@@ -131,11 +131,11 @@ class _ItinerariesContentState extends ConsumerState<_ItinerariesContent> {
               Text('Roteiros',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.w800,
-                      color: AppColors.foreground)),
+                      color: Theme.of(context).colorScheme.onSurface)),
               const SizedBox(height: 4),
-              const Text(
+              Text(
                 'Monte itinerarios personalizados com os melhores locais do bairro.',
-                style: TextStyle(fontSize: 15, color: AppColors.mutedForeground),
+                style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
               const SizedBox(height: 16),
               Container(
@@ -147,11 +147,11 @@ class _ItinerariesContentState extends ConsumerState<_ItinerariesContent> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(LucideIcons.mapPin,
+                    Icon(LucideIcons.mapPin,
                         size: 14, color: AppColors.coral),
                     const SizedBox(width: 6),
                     Text(widget.cityName,
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: AppColors.coral,
                             fontWeight: FontWeight.w600,
                             fontSize: 13)),
@@ -164,12 +164,12 @@ class _ItinerariesContentState extends ConsumerState<_ItinerariesContent> {
                 onChanged: (v) => setState(() => _search = v),
                 decoration: InputDecoration(
                   hintText: 'Buscar roteiro...',
-                  prefixIcon: const Icon(LucideIcons.search,
-                      size: 18, color: AppColors.mutedForeground),
+                  prefixIcon: Icon(LucideIcons.search,
+                      size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   suffixIcon: _search.isNotEmpty
                       ? IconButton(
-                          icon: const Icon(LucideIcons.x,
-                              size: 16, color: AppColors.mutedForeground),
+                          icon: Icon(LucideIcons.x,
+                              size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
                           onPressed: () {
                             _searchCtrl.clear();
                             setState(() => _search = '');
@@ -215,19 +215,19 @@ class _ItinerariesContentState extends ConsumerState<_ItinerariesContent> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Excluir roteiro?'),
+        title: Text('Excluir roteiro?'),
         content:
             Text('O roteiro "${item.name}" sera removido permanentemente.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           FilledButton(
             style:
                 FilledButton.styleFrom(backgroundColor: AppColors.destructive),
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Excluir'),
+            child: Text('Excluir'),
           ),
         ],
       ),
@@ -272,9 +272,9 @@ class _ItineraryCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(18),
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.background,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.04),
@@ -288,7 +288,7 @@ class _ItineraryCard extends StatelessWidget {
           children: [
             Container(
               height: 6,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
                     colors: [AppColors.coral, AppColors.coralDark]),
                 borderRadius:
@@ -305,24 +305,24 @@ class _ItineraryCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(itinerary.name,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontWeight: FontWeight.w700,
                                 fontSize: 16,
-                                color: AppColors.foreground)),
+                                color: Theme.of(context).colorScheme.onSurface)),
                       ),
                       PopupMenuButton<String>(
-                        icon: const Icon(LucideIcons.ellipsisVertical,
-                            size: 18, color: AppColors.mutedForeground),
+                        icon: Icon(LucideIcons.ellipsisVertical,
+                            size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
                         onSelected: (v) {
                           if (v == 'edit') onEdit();
                           if (v == 'delete') onDelete();
                         },
-                        itemBuilder: (_) => const [
+                        itemBuilder: (_) => [
                           PopupMenuItem(
                             value: 'edit',
                             child: Row(children: [
                               Icon(LucideIcons.pencil,
-                                  size: 16, color: AppColors.foreground),
+                                  size: 16, color: Theme.of(context).colorScheme.onSurface),
                               SizedBox(width: 10),
                               Text('Editar'),
                             ]),
@@ -344,28 +344,28 @@ class _ItineraryCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Row(children: [
-                    const Icon(LucideIcons.mapPin,
-                        size: 13, color: AppColors.mutedForeground),
+                    Icon(LucideIcons.mapPin,
+                        size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
                           '${itinerary.cityName}  x  ${itinerary.districtName}',
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 12,
-                              color: AppColors.mutedForeground),
+                              color: Theme.of(context).colorScheme.onSurfaceVariant),
                           overflow: TextOverflow.ellipsis),
                     ),
                   ]),
                   if (itinerary.date != null) ...[
                     const SizedBox(height: 4),
                     Row(children: [
-                      const Icon(LucideIcons.calendar,
-                          size: 13, color: AppColors.mutedForeground),
+                      Icon(LucideIcons.calendar,
+                          size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       const SizedBox(width: 4),
                       Text(_fmt(itinerary.date!),
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 12,
-                              color: AppColors.mutedForeground)),
+                              color: Theme.of(context).colorScheme.onSurfaceVariant)),
                     ]),
                   ],
                   const SizedBox(height: 12),
@@ -382,10 +382,10 @@ class _ItineraryCard extends StatelessWidget {
                       ],
                     )
                   else
-                    const Text('Nenhum local adicionado ainda',
+                    Text('Nenhum local adicionado ainda',
                         style: TextStyle(
                             fontSize: 12,
-                            color: AppColors.mutedForeground,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                             fontStyle: FontStyle.italic)),
                   const SizedBox(height: 12),
                   Row(children: [
@@ -398,20 +398,20 @@ class _ItineraryCard extends StatelessWidget {
                       ),
                       child: Text(
                         '${itinerary.placeCount} local${itinerary.placeCount != 1 ? "is" : ""}',
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 12,
                             color: AppColors.coral,
                             fontWeight: FontWeight.w600),
                       ),
                     ),
                     const Spacer(),
-                    const Text('Ver detalhes',
+                    Text('Ver detalhes',
                         style: TextStyle(
                             fontSize: 13,
                             color: AppColors.coral,
                             fontWeight: FontWeight.w600)),
                     const SizedBox(width: 4),
-                    const Icon(LucideIcons.arrowRight,
+                    Icon(LucideIcons.arrowRight,
                         size: 14, color: AppColors.coral),
                   ]),
                 ],
@@ -432,17 +432,17 @@ class _PlacePill extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: AppColors.muted,
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(place.category.emoji, style: const TextStyle(fontSize: 12)),
+            Text(place.category.emoji, style: TextStyle(fontSize: 12)),
             const SizedBox(width: 4),
             Text(place.name,
-                style: const TextStyle(
-                    fontSize: 11, color: AppColors.foreground)),
+                style: TextStyle(
+                    fontSize: 11, color: Theme.of(context).colorScheme.onSurface)),
           ],
         ),
       );
@@ -460,7 +460,7 @@ class _MorePill extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text('+$count mais',
-            style: const TextStyle(
+            style: TextStyle(
                 fontSize: 11,
                 color: AppColors.coral,
                 fontWeight: FontWeight.w600)),
@@ -481,15 +481,15 @@ class _EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(LucideIcons.map,
-                size: 52, color: AppColors.mutedForeground),
+            Icon(LucideIcons.map,
+                size: 52, color: Theme.of(context).colorScheme.onSurfaceVariant),
             const SizedBox(height: 20),
             Text(
               hasSearch ? 'Nenhum roteiro encontrado' : 'Sem roteiros ainda',
-              style: const TextStyle(
+              style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 18,
-                  color: AppColors.foreground),
+                  color: Theme.of(context).colorScheme.onSurface),
             ),
             const SizedBox(height: 8),
             Text(
@@ -497,13 +497,13 @@ class _EmptyState extends StatelessWidget {
                   ? 'Tente outra pesquisa.'
                   : 'Crie seu primeiro roteiro personalizado\npara o bairro selecionado.',
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.mutedForeground),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
             if (hasSearch) ...[
               const SizedBox(height: 16),
               OutlinedButton(
                 onPressed: onClear,
-                child: const Text('Limpar pesquisa'),
+                child: Text('Limpar pesquisa'),
               ),
             ],
           ],
