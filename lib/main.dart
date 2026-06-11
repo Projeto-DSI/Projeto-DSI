@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_options.dart';
 import 'app.dart';
 
@@ -17,6 +18,27 @@ Future<void> main() async {
     debugPrint('Falha ao inicializar Firebase: $e\n$s');
     runApp(_StartupErrorApp(message: 'Erro ao conectar ao Firebase.\n$e'));
     return;
+  }
+
+
+  try {
+    await FirebaseFirestore.instance
+        .collection('_health')
+        .doc('ping')
+        .get()
+        .timeout(const Duration(seconds: 6));
+    debugPrint('✅ Firebase ok (Firestore acessível)');
+  } on TimeoutException {
+    debugPrint('⚠️ Firestore ping timeout — rede lenta ou regras bloqueando');
+  } on FirebaseException catch (e) {
+  
+    if (e.code == 'permission-denied') {
+      debugPrint('✅ Firebase ok (Firestore respondendo, regras restritivas)');
+    } else {
+      debugPrint('⚠️ Firestore inacessível [${e.code}]: ${e.message}');
+    }
+  } catch (e) {
+    debugPrint('⚠️ Firestore inacessível: $e');
   }
 
   runApp(const ProviderScope(child: VibeCoralQuestApp()));

@@ -2,17 +2,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../models/user_quest.dart';
+import '../providers/app_repository_provider.dart';
 import '../providers/auth_provider.dart';
 import '../services/quest_service.dart';
 
-final userQuestsProvider = NotifierProvider<UserQuestNotifier, AsyncValue<List<UserQuest>>>(
+final userQuestsProvider =
+    NotifierProvider<UserQuestNotifier, AsyncValue<List<UserQuest>>>(
   UserQuestNotifier.new,
 );
+
 
 class UserQuestNotifier extends Notifier<AsyncValue<List<UserQuest>>> {
   @override
   AsyncValue<List<UserQuest>> build() {
-    // Initial empty state and start listening to auth changes
     _init();
     return const AsyncValue.data(<UserQuest>[]);
   }
@@ -23,11 +25,8 @@ class UserQuestNotifier extends Notifier<AsyncValue<List<UserQuest>>> {
         state = const AsyncValue.data(<UserQuest>[]);
         return;
       }
-
-      final prevUid = previous?.uid;
-      final nextUid = next.uid;
-      if (prevUid != nextUid) {
-        load(nextUid);
+      if (previous?.uid != next.uid) {
+        load(next.uid);
       }
     }, fireImmediately: true);
   }
@@ -37,6 +36,7 @@ class UserQuestNotifier extends Notifier<AsyncValue<List<UserQuest>>> {
     try {
       final quests = await questService.fetchByUser(userId);
       state = AsyncValue.data(quests);
+      _syncRepo(quests);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
@@ -45,23 +45,31 @@ class UserQuestNotifier extends Notifier<AsyncValue<List<UserQuest>>> {
   Future<void> add(UserQuest quest) async {
     final created = await questService.create(quest);
     state.whenData((list) {
-      state = AsyncValue.data([created, ...list]);
+      final updated = [created, ...list];
+      state = AsyncValue.data(updated);
+      _syncRepo(updated);
     });
   }
 
   Future<void> edit(UserQuest quest) async {
     await questService.update(quest);
     state.whenData((list) {
-      state = AsyncValue.data([
-        for (final q in list) q.id == quest.id ? quest : q,
-      ]);
+      final updated = [for (final q in list) q.id == quest.id ? quest : q];
+      state = AsyncValue.data(updated);
+      _syncRepo(updated);
     });
   }
 
   Future<void> remove(String questId) async {
     await questService.delete(questId);
     state.whenData((list) {
-      state = AsyncValue.data(list.where((q) => q.id != questId).toList());
+      final updated = list.where((q) => q.id != questId).toList();
+      state = AsyncValue.data(updated);
+      _syncRepo(updated);
     });
+  }
+
+  void _syncRepo(List<UserQuest> quests) {
+    ref.read(appRepositoryProvider).syncUserQuests(quests);
   }
 }

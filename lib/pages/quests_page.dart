@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
-import '../providers/firestore_provider.dart';
+
 import '../models/quest.dart';
+import '../providers/app_repository_provider.dart';
+import '../providers/firestore_provider.dart';
 import '../theme/app_theme.dart';
 
 class QuestsPage extends ConsumerStatefulWidget {
@@ -17,21 +19,17 @@ class _QuestsPageState extends ConsumerState<QuestsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final completedAsync = ref.watch(completedQuestsProvider);
+    // Reconstrói quando o repositório termina de carregar / atualizar.
+    ref.watch(repositoryVersionProvider);
 
-    return completedAsync.when(
-      data: (completed) => _buildContent(completed),
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text(
-            'Erro ao carregar missões 😕\n$e',
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ),
-    );
+    final questProgress = ref.watch(appRepositoryProvider).questProgress;
+
+    // Enquanto o repositório ainda não carregou (login em andamento).
+    if (questProgress == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    return _buildContent(questProgress.completedIds);
   }
 
   Widget _buildContent(List<String> completed) {
@@ -85,13 +83,17 @@ class _QuestsPageState extends ConsumerState<QuestsPage> {
                             _expandedId = _expandedId == defaultQuests[i].id
                                 ? null
                                 : defaultQuests[i].id),
-                        onComplete: () {
+                        onComplete: () async {
                           final q = defaultQuests[i];
-                          ref.read(completeQuestProvider(q.id));
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text('+${q.xp} XP ganhos! 🎉'),
-                            behavior: SnackBarBehavior.floating,
-                          ));
+                          await ref.read(completeQuestProvider(q.id).future);
+                          // Força rebuild imediato nesta página.
+                          ref.read(repositoryVersionProvider.notifier).state++;
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text('+${q.xp} XP ganhos! 🎉'),
+                              behavior: SnackBarBehavior.floating,
+                            ));
+                          }
                         },
                       ),
                       if (i < defaultQuests.length - 1)
@@ -134,11 +136,7 @@ class _XpSummary extends StatelessWidget {
   final int done;
   final int total;
 
-  const _XpSummary({
-    required this.totalXp,
-    required this.done,
-    required this.total,
-  });
+  const _XpSummary({required this.totalXp, required this.done, required this.total});
 
   @override
   Widget build(BuildContext context) {
@@ -240,19 +238,16 @@ class _QuestCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            quest.title,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              decoration: isDone
-                                  ? TextDecoration.lineThrough
-                                  : null,
-                              color: isDone
-                                  ? AppColors.mutedForeground
-                                  : AppColors.foreground,
-                            ),
-                          ),
+                          Text(quest.title,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                decoration:
+                                    isDone ? TextDecoration.lineThrough : null,
+                                color: isDone
+                                    ? AppColors.mutedForeground
+                                    : AppColors.foreground,
+                              )),
                           const SizedBox(height: 2),
                           Text(quest.subtitle,
                               style: const TextStyle(

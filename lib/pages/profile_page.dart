@@ -1,69 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
- 
+
 import '../models/favorite_city.dart';
+import '../providers/app_repository_provider.dart';
 import '../providers/auth_provider.dart';
-import '../providers/firestore_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_text_field.dart';
- 
+
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
- 
+
   @override
   ConsumerState<ProfilePage> createState() => _ProfilePageState();
 }
- 
+
 class _ProfilePageState extends ConsumerState<ProfilePage> {
   final _nameController = TextEditingController();
   bool _editing = false;
   bool _saving = false;
-  bool _loaded = false;
- 
-  final List<FavoriteCity> _favCities = [];
-  int _questCount = 0;
-  int _totalXp = 0;
- 
+
   @override
   void dispose() {
     _nameController.dispose();
     super.dispose();
   }
- 
-  Future<void> _load(String userId) async {
-    if (_loaded) return;
-    _loaded = true;
- 
-    try {
-      final service = ref.read(firestoreServiceProvider);
- 
-      // Perfil
-      final profile = await service.getProfile(userId);
-      if (profile != null && profile['display_name'] != null) {
-        _nameController.text = profile['display_name'] as String;
-      }
- 
-      // Quests completadas
-      final quests = await service.getCompletedQuests(userId);
-      _questCount = quests.length;
-      _totalXp = quests.fold<int>(
-        0,
-        (sum, q) => sum + ((q['xp_earned'] as int?) ?? 0),
-      );
- 
-      if (mounted) setState(() {});
-    } catch (e) {
-      debugPrint('ProfilePage _load error: $e');
+
+  /// Popula o nome a partir do cache do AppRepository.
+  /// Chamado sempre que repositoryVersionProvider muda (dados chegaram).
+  void _syncFromRepo() {
+    final profile = ref.read(appRepositoryProvider).profile;
+    if (profile != null && _nameController.text.isEmpty) {
+      _nameController.text = profile.displayName;
     }
   }
- 
-  Future<void> _save(String userId) async {
+
+  Future<void> _save() async {
     setState(() => _saving = true);
     try {
-      await ref
-          .read(firestoreServiceProvider)
-          .updateProfile(userId, {'display_name': _nameController.text});
+      await ref.read(appRepositoryProvider).updateDisplayName(
+            _nameController.text.trim(),
+          );
       _toast('Perfil atualizado!');
       setState(() => _editing = false);
     } catch (e) {
@@ -73,7 +50,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       if (mounted) setState(() => _saving = false);
     }
   }
- 
+
   void _toast(String msg, {bool error = false}) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -82,14 +59,18 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       behavior: SnackBarBehavior.floating,
     ));
   }
- 
+
   @override
   Widget build(BuildContext context) {
+    // Reconstrói quando o repositório termina de carregar ou atualizar dados.
+    ref.watch(repositoryVersionProvider);
+    _syncFromRepo();
+
     final user = ref.watch(currentUserProvider);
-    if (user != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _load(user.uid));
-    }
- 
+    final repo = ref.watch(appRepositoryProvider);
+    final questCount = repo.questProgress?.totalCompleted ?? 0;
+    final List<FavoriteCity> favCities = repo.favoriteCities.toList();
+
     return SafeArea(
       child: Center(
         child: ConstrainedBox(
@@ -132,9 +113,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                 ),
                                 const SizedBox(width: 8),
                                 IconButton.filled(
-                                  onPressed: _saving
-                                      ? null
-                                      : () => _save(user!.uid),
+                                  onPressed: _saving ? null : _save,
                                   style: IconButton.styleFrom(
                                     backgroundColor: AppColors.coral,
                                     foregroundColor: Colors.white,
@@ -180,14 +159,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     Expanded(
                         child: _StatCard(
                       icon: LucideIcons.trophy,
-                      value: _totalXp.toString(),
-                      label: 'XP Total',
+                      value: questCount.toString(),
+                      label: 'Missões Completas',
                     )),
                     const SizedBox(width: 12),
                     Expanded(
                         child: _StatCard(
                       icon: LucideIcons.mapPin,
-                      value: _favCities.length.toString(),
+                      value: favCities.length.toString(),
                       label: 'Cidades Exploradas',
                     )),
                   ],
@@ -199,7 +178,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         fontWeight: FontWeight.bold,
                         color: AppColors.foreground)),
                 const SizedBox(height: 12),
-                if (_favCities.isEmpty)
+                if (favCities.isEmpty)
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -215,7 +194,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   )
                 else
                   Column(
-                    children: _favCities
+                    children: favCities
                         .map((c) => Padding(
                               padding: const EdgeInsets.only(bottom: 8),
                               child: Container(
@@ -229,11 +208,29 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                     const Icon(LucideIcons.mapPin,
                                         size: 16, color: AppColors.coral),
                                     const SizedBox(width: 12),
-                                    Text(c.cityName,
-                                        style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            color: AppColors.foreground)),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            c.district.isEmpty
+                                                ? c.cityName
+                                                : c.district,
+                                            style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                color: AppColors.foreground),
+                                          ),
+                                          if (c.district.isNotEmpty)
+                                            Text(c.cityName,
+                                                style: const TextStyle(
+                                                    fontSize: 12,
+                                                    color: AppColors
+                                                        .mutedForeground)),
+                                        ],
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -256,7 +253,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('$_questCount missões completadas',
+                      Text('$questCount missões completadas',
                           style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
@@ -289,18 +286,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 }
- 
+
 class _StatCard extends StatelessWidget {
   final IconData icon;
   final String value;
   final String label;
- 
-  const _StatCard({
-    required this.icon,
-    required this.value,
-    required this.label,
-  });
- 
+
+  const _StatCard({required this.icon, required this.value, required this.label});
+
   @override
   Widget build(BuildContext context) {
     return Container(
